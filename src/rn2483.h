@@ -9,8 +9,10 @@ class RN2483 {
         int answerLen;
         char *bufferAnswer;
         int bufferAnswerLen;
+        char swVer[50];
 
     public:
+    RN2483(){swVer[0]=0;};
     void init();
     void rawData(String stream);
     inline void prepareAnswer(char *buffer, int bufferLen){
@@ -19,6 +21,7 @@ class RN2483 {
     };        
     boolean hasAnswer(void);
     inline const char* getLastAnswer(void) {return bufferAnswer;};
+    const char* getVersion(void);
 };
 
 // external variable used by the sketches

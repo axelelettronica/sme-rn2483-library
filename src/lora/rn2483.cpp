@@ -1,5 +1,5 @@
 #include "../rn2483.h"
-
+#include "rn2483Model.h"
 
 void RN2483::init() {
     Serial1.begin(57600);
@@ -29,4 +29,23 @@ boolean RN2483::hasAnswer(void) {
     // nothing ready at the moment
     return false;
 }
+
+const char* RN2483::getVersion(void)
+{
+    char buffer[50];
+    // maybe to remove because new contructor
+    prepareAnswer(buffer, sizeof(buffer));	
+    
+    // send request
+    lora.rawData(SYS_GET_VER);
+    
+    // remain till buffer is completed
+    while (!lora.hasAnswer()) {
+        delay(10);
+    };
+    memcpy(swVer, lora.getLastAnswer(), strlen(lora.getLastAnswer()));
+    
+    return swVer;
+}
+
 RN2483 lora;
