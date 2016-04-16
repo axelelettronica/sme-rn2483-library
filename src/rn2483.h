@@ -5,23 +5,26 @@
 
 
 class RN2483 {
-    private:
-        int answerLen;
-        char *bufferAnswer;
-        int bufferAnswerLen;
-        char swVer[50];
+private:
+    int answerLen;
+    char *bufferAnswer;
+    int bufferAnswerLen;
+    char swVer[50];
 
-    public:
+public:
     RN2483(){swVer[0]=0;};
     void init();
     void rawData(String stream);
     inline void prepareAnswer(char *buffer, int bufferLen){
         bufferAnswer = buffer;
         bufferAnswerLen = bufferLen;
-    };        
+    };
     boolean hasAnswer(void);
     inline const char* getLastAnswer(void) {return bufferAnswer;};
+
+    //SYS specific command
     const char* getVersion(void);
+    const void factoryReset(void);
 };
 
 // external variable used by the sketches

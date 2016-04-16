@@ -14,18 +14,18 @@ void RN2483::rawData(String stream) {
 boolean RN2483::hasAnswer(void) {
     if (SigFox.available()) {
         bufferAnswer[answerLen] = SigFox.read();
-        
+
         // the answer ends with the \n char
         if (bufferAnswer[answerLen] == 0x0a) {
             return true;
         }
         answerLen++;
-        
+
         // cannot receive more data than the allocated buffer
         if (answerLen > bufferAnswerLen)
-        return true;
+            return true;
     }
-    
+
     // nothing ready at the moment
     return false;
 }
@@ -36,10 +36,10 @@ const char* RN2483::getVersion(void)
         char buffer[50];
         // maybe to remove because new contructor
         prepareAnswer(buffer, sizeof(buffer));
-        
+
         // send request
         lora.rawData(SYS_GET_VER);
-        
+
         // remain till buffer is completed
         while (!lora.hasAnswer()) {
             delay(10);
@@ -47,6 +47,13 @@ const char* RN2483::getVersion(void)
         memcpy(swVer, lora.getLastAnswer(), strlen(lora.getLastAnswer()));
     }
     return swVer;
+}
+
+const void RN2483::factoryReset(void)
+{
+    // send request
+    lora.rawData(SYS_FACTORY_RESET);
+
 }
 
 RN2483 lora;
