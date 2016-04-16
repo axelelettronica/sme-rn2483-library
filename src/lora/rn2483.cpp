@@ -33,9 +33,10 @@ boolean RN2483::hasAnswer(void) {
 const char* RN2483::getVersion(void)
 {
     if (swVer[0] == 0) {
-        char buffer[50];
+        char buffer[SW_VER_LEN];
         // maybe to remove because new contructor
-        prepareAnswer(buffer, sizeof(buffer));
+        memset(buffer,0,SW_VER_LEN);
+        prepareAnswer(buffer, SW_VER_LEN);
 
         // send request
         rawData(SYS_GET_VER);

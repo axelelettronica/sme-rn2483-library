@@ -5,6 +5,8 @@
 #include "lora\rn2483Model.h"
 
 
+#define SW_VER_LEN 50
+
 class RN2483 {
 private:
     int answerLen;
