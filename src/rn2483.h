@@ -5,16 +5,13 @@
 #include "lora\rn2483Model.h"
 
 
-#define SW_VER_LEN  50
-#define GET_NVM_LEN 13
-
 class RN2483 {
 private:
     int answerLen;
     char *bufferAnswer;
     int bufferAnswerLen;
-    char swVer[50];
-    char nvm[3];
+    char swVer[SW_VER_LEN];
+    char nvm[NVM_DATA_LEN];
 
 public:
     RN2483(){swVer[0]=0;};
@@ -56,6 +53,19 @@ public:
      *          invalid_param if the address is not valid
      */
     const char* getUserEEprom(char address);
+    
+    /*
+     * Write data to the requested user EEPROM <address>.
+     *   from  300 to 3FF
+     *
+     * <address>: hexadecimal number EEPROM base
+     *             from  00 to FF
+     * <data>: hexadecimal number representing data, from 00 to FF
+     * 
+     * Response: ok if the parameters (address and data) are valid
+     *           invalid_param if the parameters (address and data) are not valid
+     */
+    const char* setUserEEprom(char address, char data);
 };
 
 // external variable used by the sketches
