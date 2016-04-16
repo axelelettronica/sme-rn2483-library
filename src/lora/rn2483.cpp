@@ -2,18 +2,18 @@
 #include "rn2483Model.h"
 
 void RN2483::init() {
-    Serial1.begin(57600);
+    SigFox.begin(57600);
 }
 
 void RN2483::rawData(String stream) {
     answerLen =0; // reset Answer Counter
     stream.concat("\r\n");
-    Serial1.print(stream);
+    SigFox.print(stream);
 }
 
 boolean RN2483::hasAnswer(void) {
-    if (Serial1.available()) {
-        bufferAnswer[answerLen] = Serial1.read();
+    if (SigFox.available()) {
+        bufferAnswer[answerLen] = SigFox.read();
         
         // the answer ends with the \n char
         if (bufferAnswer[answerLen] == 0x0a) {
@@ -32,19 +32,20 @@ boolean RN2483::hasAnswer(void) {
 
 const char* RN2483::getVersion(void)
 {
-    char buffer[50];
-    // maybe to remove because new contructor
-    prepareAnswer(buffer, sizeof(buffer));	
-    
-    // send request
-    lora.rawData(SYS_GET_VER);
-    
-    // remain till buffer is completed
-    while (!lora.hasAnswer()) {
-        delay(10);
-    };
-    memcpy(swVer, lora.getLastAnswer(), strlen(lora.getLastAnswer()));
-    
+    if (swVer[0] == 0) {
+        char buffer[50];
+        // maybe to remove because new contructor
+        prepareAnswer(buffer, sizeof(buffer));
+        
+        // send request
+        lora.rawData(SYS_GET_VER);
+        
+        // remain till buffer is completed
+        while (!lora.hasAnswer()) {
+            delay(10);
+        };
+        memcpy(swVer, lora.getLastAnswer(), strlen(lora.getLastAnswer()));
+    }
     return swVer;
 }
 
