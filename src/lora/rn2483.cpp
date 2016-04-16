@@ -51,6 +51,29 @@ const char* RN2483::getVersion(void)
 }
 
 
+const char* RN2483::getUserEEprom(char address){
+    char addPos = strlen(SYS_GET_NVM);
+    char bufferT[GET_NVM_LEN];
+
+    prepareAnswer(bufferT, GET_NVM_LEN);
+    strcpy(bufferT,SYS_GET_NVM);
+
+    itoa(address>>4, &bufferT[addPos], 16);
+    itoa(address&0x0F, &bufferT[addPos+1], 16);
+    
+    // send request
+    rawData(bufferT);
+
+    // remain till buffer is completed
+    while (!lora.hasAnswer()) {
+        delay(10);
+    };
+        
+    memset(nvm,0,3);
+    memcpy(nvm, lora.getLastAnswer(), 2);
+
+    return nvm;
+}
 
 
 RN2483 lora;

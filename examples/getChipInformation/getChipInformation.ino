@@ -18,12 +18,17 @@ void setup() {
 
 void loop() {
     
-    SerialUSB.write(lora.getVersion());
+    SerialUSB.print("FW Version :");
+    SerialUSB.println(lora.getVersion());
     
+    SerialUSB.print("\nget EEProm (0x00) :");
+    SerialUSB.println(lora.getUserEEprom(0));
+    SerialUSB.print("get EEProm (0x100) :");
+    SerialUSB.println(lora.getUserEEprom(0x1A));
+    SerialUSB.print("get EEProm (0x300) :");
+    SerialUSB.println(lora.getUserEEprom(0x30));
     //endless loop
     while(1){
         ;
     }
 }
-
-
