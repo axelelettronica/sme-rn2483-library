@@ -26,8 +26,21 @@ public:
     inline const char* getLastAnswer(void) {return bufferAnswer;};
 
     //SYS specific command
+    /*
+     * Returns the information on hardware platform,
+     * firmware version, release date
+     */
     const char* getVersion(void);
-    void factoryReset(void);
+
+    /*
+     * Resets the RN2483 module’s configuration data and user EEPROM
+     * to factory default values and restarts the RN2483 module.
+     */
+    inline void factoryReset(void){rawData(SYS_FACTORY_RESET);};
+
+    /*
+     * Resets and restarts the RN2483 module.
+     */
     inline void reset(void) {rawData(SYS_RESET);};
 };
 

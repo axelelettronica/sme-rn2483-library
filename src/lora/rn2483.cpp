@@ -50,12 +50,7 @@ const char* RN2483::getVersion(void)
     return swVer;
 }
 
-void RN2483::factoryReset(void)
-{
-    // send request
-    rawData(SYS_FACTORY_RESET);
 
-}
 
 
 RN2483 lora;
