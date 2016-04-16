@@ -38,7 +38,7 @@ const char* RN2483::getVersion(void)
         prepareAnswer(buffer, sizeof(buffer));
 
         // send request
-        lora.rawData(SYS_GET_VER);
+        rawData(SYS_GET_VER);
 
         // remain till buffer is completed
         while (!lora.hasAnswer()) {
@@ -49,11 +49,12 @@ const char* RN2483::getVersion(void)
     return swVer;
 }
 
-const void RN2483::factoryReset(void)
+void RN2483::factoryReset(void)
 {
     // send request
-    lora.rawData(SYS_FACTORY_RESET);
+    rawData(SYS_FACTORY_RESET);
 
 }
+
 
 RN2483 lora;

@@ -2,6 +2,7 @@
 #define RN2483_H
 
 #include <Arduino.h>
+#include "lora\rn2483Model.h"
 
 
 class RN2483 {
@@ -24,7 +25,8 @@ public:
 
     //SYS specific command
     const char* getVersion(void);
-    const void factoryReset(void);
+    void factoryReset(void);
+    inline void reset(void) {rawData(SYS_RESET);};
 };
 
 // external variable used by the sketches
