@@ -55,7 +55,7 @@ const char* RN2483::getUserEEprom(char address){
     char addPos = strlen(SYS_GET_NVM);
     char bufferT[GET_NVM_LEN];
 
-    prepareAnswer(nvm, NVM_DATA_LEN);
+    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
     strcpy(bufferT,SYS_GET_NVM);
 
     itoa(address>>4, &bufferT[addPos], 16);
@@ -69,14 +69,14 @@ const char* RN2483::getUserEEprom(char address){
         delay(10);
     };
 
-    return nvm;
+    return answer;
 }
 
 const char* RN2483::setUserEEprom(char address, char data){
     char addPos = strlen(SYS_SET_NVM);
     char bufferT[SET_NVM_LEN];
 
-    prepareAnswer(nvm, NVM_DATA_LEN);
+    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
     strcpy(bufferT,SYS_SET_NVM);
 
     itoa(address>>4, &bufferT[addPos], 16);
@@ -92,11 +92,28 @@ const char* RN2483::setUserEEprom(char address, char data){
         delay(10);
     };
 
-    memset(nvm,0,3);
-    memcpy(nvm, lora.getLastAnswer(), 2);
+    memset(answer,0,3);
+    memcpy(answer, lora.getLastAnswer(), 2);
 
-    return nvm;
+    return answer;
 }
 
+int RN2483::getPower(void) {
+
+    int ret;
+
+    // send request
+    rawData(SYS_GET_VDD);
+
+    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
+
+    // remain till buffer is completed
+    while (!lora.hasAnswer()) {
+        delay(10);
+    };
+    
+    sscanf(answer, "%4d", &ret);
+    return ret;
+}
 
 RN2483 lora;

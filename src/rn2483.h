@@ -11,7 +11,7 @@ private:
     char *bufferAnswer;
     int bufferAnswerLen;
     char swVer[SW_VER_LEN];
-    char nvm[NVM_DATA_LEN];
+    char answer[SMALL_ANSWER_DATA_LEN];
 
 public:
     RN2483(){swVer[0]=0;};
@@ -66,6 +66,14 @@ public:
      *           invalid_param if the parameters (address and data) are not valid
      */
     const char* setUserEEprom(char address, char data);
+
+    /*
+     * This command informs the RN2483 module to do an ADC conversion on the VDD.
+     * The measurement is converted and returned as a voltage (mV).
+     *
+     * Response: 0–3600 (decimal value from 0 to 3600)
+     */
+    int getPower(void);
 };
 
 // external variable used by the sketches
