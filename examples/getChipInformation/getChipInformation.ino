@@ -32,11 +32,24 @@ void loop() {
 
 
     // Read Power
-    SerialUSB.print("\Vdd is: ");
+    SerialUSB.print("\nVdd is: ");
     SerialUSB.print(lora.getPower());
     SerialUSB.println(" mV");
 
 
+    // Read HwEUI
+    SerialUSB.print("\nhwEUI is (NON VA ANCORA): ");
+    SerialUSB.println(lora.getHwEUI());
+
+    // Read Radio modulation Mode
+    SerialUSB.print("\nRadio is in mode: ");
+    radioModeE radio = lora.getRadioMode();
+    
+    if (radio == LoRa) {
+        SerialUSB.println("LoRa");
+    } else if (radio == FSK) {
+     SerialUSB.println("FSK");
+    }
 
     // Change EEProm
     SerialUSB.println("\n change data on EEProm address.");
@@ -49,8 +62,8 @@ void loop() {
 
         if (SerialUSB.available()) {
             answer = SerialUSB.read();
-        }    
-    } while (answer != 'Y');   
+        }
+    } while (answer != 'Y');
     SerialUSB.println(lora.setUserEEprom(0, 0x01));
     SerialUSB.println(lora.setUserEEprom(0x1A, 00));
     SerialUSB.println(lora.setUserEEprom(0x30, 0x7E));
@@ -67,4 +80,5 @@ void loop() {
         ;
     }
 }
+
 

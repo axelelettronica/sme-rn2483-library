@@ -1,7 +1,7 @@
 #ifndef RN2483_MODEL_H
 #define RN2483_MODEL_H
 
-#define SMALL_ANSWER_DATA_LEN        17 // tuned on "invalid_param" answer
+#define SMALL_ANSWER_DATA_LEN   20 // tuned on "sys get hweui" answer
 
 #define SYS_GET_VER         "sys get ver"
 #define SW_VER_LEN          50
@@ -15,4 +15,14 @@
 #define SET_NVM_LEN         18
 
 #define SYS_GET_VDD         "sys get vdd"
+
+#define SYS_GET_HWEUI       "sys get hweui"
+
+
+
+
+// Radio command
+#define RADIO_GET_MOD       "radio get mod"
+#define LORA_MODE           "lora"
+#define FSK_MODE            "fsk"
 #endif

@@ -4,6 +4,20 @@
 #include <Arduino.h>
 #include "lora\rn2483Model.h"
 
+#define HWEUI_LEN 8
+
+typedef enum {
+    UnknownRadio,
+    LoRa,
+    FSK
+}radioModeE;
+
+typedef struct {
+    char sw:1;
+    char hwEUI:1;
+    radioModeE radioMode;
+}RN2483InitS;
+
 
 class RN2483 {
 private:
@@ -12,9 +26,11 @@ private:
     int bufferAnswerLen;
     char swVer[SW_VER_LEN];
     char answer[SMALL_ANSWER_DATA_LEN];
+    char hwEUI[HWEUI_LEN];
+    RN2483InitS initField;
 
 public:
-    RN2483(){swVer[0]=0;};
+    RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
     void init();
     void rawData(String stream);
     inline void prepareAnswer(char *buffer, int bufferLen){
@@ -24,7 +40,9 @@ public:
     boolean hasAnswer(void);
     inline const char* getLastAnswer(void) {return bufferAnswer;};
 
-    //SYS specific command
+
+
+    //SYS command
     /*
      * Returns the information on hardware platform,
      * firmware version, release date
@@ -74,6 +92,28 @@ public:
      * Response: 0–3600 (decimal value from 0 to 3600)
      */
     int getPower(void);
+
+    /*
+     * This command reads the preprogrammed EUI node address from the RN2483 module.
+     * The value returned by this command is a globally unique number provided by Microchip.
+     *
+     * Response: hexadecimal number representing the preprogrammed EUI node address
+     *
+     */
+    const char* getHwEUI(void);
+
+
+    //RADIO command
+
+    /*
+     * This command reads back the current mode of operation of the module.
+     *      Default: lora
+     *
+     * Response: string representing the current mode of operation of the module,
+     *              either lora or fsk.
+     *
+     */
+    radioModeE getRadioMode();
 };
 
 // external variable used by the sketches

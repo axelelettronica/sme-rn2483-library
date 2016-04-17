@@ -32,7 +32,7 @@ boolean RN2483::hasAnswer(void) {
 
 const char* RN2483::getVersion(void)
 {
-    if (swVer[0] == 0) {
+    if (initField.sw == 0) {
         // maybe to remove because new constructor
         prepareAnswer(swVer, SW_VER_LEN);
 
@@ -43,6 +43,8 @@ const char* RN2483::getVersion(void)
         while (!lora.hasAnswer()) {
             delay(10);
         };
+
+        initField.sw = 1; //initialized
     }
     return swVer;
 }
@@ -117,6 +119,52 @@ int RN2483::getPower(void) {
     return ret;
 }
 
+uint32_t test;
+const char* RN2483::getHwEUI(void)
+{
+    if (initField.hwEUI == 0) {
+        // maybe to remove because new constructor
+        prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
+
+        // send request
+        rawData(SYS_GET_HWEUI);
+
+        // remain till buffer is completed
+        while (!lora.hasAnswer()) {
+            delay(10);
+        };
+
+        int i=0;
+        test = strtol(answer, NULL, 16);
+        for (;i<16;i++){
+            test = atoi(&answer[i]);
+        }
+        initField.hwEUI = 1; //initialized
+    }
+    return hwEUI;
+}
 
 
+radioModeE RN2483::getRadioMode(void) {
+    if (initField.radioMode==UnknownRadio) {
+        // maybe to remove because new constructor
+        prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
+
+        // send request
+        rawData(RADIO_GET_MOD);
+
+        // remain till buffer is completed
+        while (!lora.hasAnswer()) {
+            delay(10);
+        };
+
+        if (answer[0] =='l') {
+            initField.radioMode = LoRa;
+        } else if (answer[0] =='f') {
+            initField.radioMode = FSK;
+        }
+    }
+
+    return initField.radioMode;
+}
 RN2483 lora;
