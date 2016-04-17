@@ -29,6 +29,9 @@ private:
     char hwEUI[HWEUI_LEN];
     RN2483InitS initField;
 
+private:
+    bool checkAnswer(char *answer);
+
 public:
     RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
     void init();
@@ -114,6 +117,21 @@ public:
      *
      */
     radioModeE getRadioMode();
+
+    /*
+     *
+     * This command changes the modulation method being used by the module. 
+     * Altering the mode of operation does not affect previously set parameters, 
+     *      variables or registers.
+     * FSK mode also allows GFSK transmissions when data shaping is enabled.
+     * 
+     *  <mode>: string representing the modulation method, 
+     *              either lora or fsk.
+     *
+     *  Response: ok if the modulation is valid
+     *            invalid_param if the modulation is not valid
+     */
+    bool setRadioMode (char *radioMode);
 };
 
 // external variable used by the sketches

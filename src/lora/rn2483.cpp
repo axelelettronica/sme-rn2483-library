@@ -151,7 +151,7 @@ radioModeE RN2483::getRadioMode(void) {
         prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
 
         // send request
-        rawData(RADIO_GET_MOD);
+        rawData(RADIO_GET_MODE);
 
         // remain till buffer is completed
         while (!lora.hasAnswer()) {
@@ -167,4 +167,35 @@ radioModeE RN2483::getRadioMode(void) {
 
     return initField.radioMode;
 }
+
+bool RN2483::setRadioMode (char *radioMode){
+
+    char addPos = strlen(SYS_SET_NVM);
+    char bufferT[RADIO_MODE_LEN];
+    strcpy(bufferT,RADIO_SET_MODE);
+
+    memcpy(&bufferT[strlen(RADIO_SET_MODE)], radioMode, strlen(radioMode));
+
+    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
+    // send request
+    rawData(bufferT);
+
+    // remain till buffer is completed
+    while (!lora.hasAnswer()) {
+        delay(10);
+    };
+
+    if (checkAnswer(answer)) {        
+        // new conf reset initialion status
+        initField.radioMode = UnknownRadio;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool RN2483::checkAnswer(char *answer){
+    return (('o'==answer[0]) && ('k'==answer[1]));
+}
+
 RN2483 lora;

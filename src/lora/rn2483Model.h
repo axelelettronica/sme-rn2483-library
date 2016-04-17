@@ -22,7 +22,9 @@
 
 
 // Radio command
-#define RADIO_GET_MOD       "radio get mod"
+#define RADIO_GET_MODE      "radio get mod"
+#define RADIO_SET_MODE      "radio set mod "
+#define RADIO_MODE_LEN      18
 #define LORA_MODE           "lora"
 #define FSK_MODE            "fsk"
 #endif
