@@ -33,10 +33,8 @@ boolean RN2483::hasAnswer(void) {
 const char* RN2483::getVersion(void)
 {
     if (swVer[0] == 0) {
-        char buffer[SW_VER_LEN];
-        // maybe to remove because new contructor
-        memset(buffer,0,SW_VER_LEN);
-        prepareAnswer(buffer, SW_VER_LEN);
+        // maybe to remove because new constructor
+        prepareAnswer(swVer, SW_VER_LEN);
 
         // send request
         rawData(SYS_GET_VER);
@@ -45,7 +43,6 @@ const char* RN2483::getVersion(void)
         while (!lora.hasAnswer()) {
             delay(10);
         };
-        memcpy(swVer, lora.getLastAnswer(), strlen(lora.getLastAnswer()));
     }
     return swVer;
 }
@@ -119,5 +116,7 @@ int RN2483::getPower(void) {
     sscanf(answer, "%4d", &ret);
     return ret;
 }
+
+
 
 RN2483 lora;
