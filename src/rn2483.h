@@ -52,8 +52,8 @@ public:
      * Response: 00 – FF if the address is valid
      *          invalid_param if the address is not valid
      */
-    const char* getUserEEprom(char address);
-    
+    char getUserEEprom(char address);
+
     /*
      * Write data to the requested user EEPROM <address>.
      *   from  300 to 3FF

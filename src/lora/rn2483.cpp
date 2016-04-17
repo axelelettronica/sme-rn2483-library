@@ -51,16 +51,17 @@ const char* RN2483::getVersion(void)
 }
 
 
-const char* RN2483::getUserEEprom(char address){
+char RN2483::getUserEEprom(char address){
+    int ret;
     char addPos = strlen(SYS_GET_NVM);
     char bufferT[GET_NVM_LEN];
 
-    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
     strcpy(bufferT,SYS_GET_NVM);
 
     itoa(address>>4, &bufferT[addPos], 16);
     itoa(address&0x0F, &bufferT[addPos+1], 16);
 
+    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
     // send request
     rawData(bufferT);
 
@@ -69,7 +70,12 @@ const char* RN2483::getUserEEprom(char address){
         delay(10);
     };
 
-    return answer;
+    // clean for 0xd & 0xa
+    answer[2]=0;
+    answer[3]=0;
+    sscanf(answer, "%x", &ret);
+
+    return ret;
 }
 
 const char* RN2483::setUserEEprom(char address, char data){
@@ -99,19 +105,17 @@ const char* RN2483::setUserEEprom(char address, char data){
 }
 
 int RN2483::getPower(void) {
-
     int ret;
 
+    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
     // send request
     rawData(SYS_GET_VDD);
-
-    prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
 
     // remain till buffer is completed
     while (!lora.hasAnswer()) {
         delay(10);
     };
-    
+
     sscanf(answer, "%4d", &ret);
     return ret;
 }

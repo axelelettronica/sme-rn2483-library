@@ -1,7 +1,7 @@
 #ifndef RN2483_MODEL_H
 #define RN2483_MODEL_H
 
-#define SMALL_ANSWER_DATA_LEN        4
+#define SMALL_ANSWER_DATA_LEN        17 // tuned on "invalid_param" answer
 
 #define SYS_GET_VER         "sys get ver"
 #define SW_VER_LEN          50
