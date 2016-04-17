@@ -40,7 +40,7 @@ const char* RN2483::getVersion(void)
         rawData(SYS_GET_VER);
 
         // remain till buffer is completed
-        while (!lora.hasAnswer()) {
+        while (!hasAnswer()) {
             delay(10);
         };
 
@@ -77,7 +77,7 @@ char RN2483::getUserEEprom(char address){
     return ret;
 }
 
-const char* RN2483::setUserEEprom(char address, char data){
+bool RN2483::setUserEEprom(char address, char data){
     char addPos = strlen(SYS_SET_NVM);
     char bufferT[SET_NVM_LEN];
 
@@ -93,14 +93,11 @@ const char* RN2483::setUserEEprom(char address, char data){
     rawData(bufferT);
 
     // remain till buffer is completed
-    while (!lora.hasAnswer()) {
+    while (!hasAnswer()) {
         delay(10);
     };
 
-    memset(answer,0,3);
-    memcpy(answer, lora.getLastAnswer(), 2);
-
-    return answer;
+    return checkAnswer(getLastAnswer());
 }
 
 int RN2483::getPower(void) {
@@ -111,7 +108,7 @@ int RN2483::getPower(void) {
     rawData(SYS_GET_VDD);
 
     // remain till buffer is completed
-    while (!lora.hasAnswer()) {
+    while (!hasAnswer()) {
         delay(10);
     };
 
@@ -130,7 +127,7 @@ const char* RN2483::getHwEUI(void)
         rawData(SYS_GET_HWEUI);
 
         // remain till buffer is completed
-        while (!lora.hasAnswer()) {
+        while (!hasAnswer()) {
             delay(10);
         };
 
@@ -154,7 +151,7 @@ radioModeE RN2483::getRadioMode(void) {
         rawData(RADIO_GET_MODE);
 
         // remain till buffer is completed
-        while (!lora.hasAnswer()) {
+        while (!hasAnswer()) {
             delay(10);
         };
 
@@ -181,7 +178,7 @@ bool RN2483::setRadioMode (char *radioMode){
     rawData(bufferT);
 
     // remain till buffer is completed
-    while (!lora.hasAnswer()) {
+    while (!hasAnswer()) {
         delay(10);
     };
 
@@ -194,7 +191,7 @@ bool RN2483::setRadioMode (char *radioMode){
     }
 }
 
-bool RN2483::checkAnswer(char *answer){
+bool RN2483::checkAnswer(const char *answer){
     return (('o'==answer[0]) && ('k'==answer[1]));
 }
 

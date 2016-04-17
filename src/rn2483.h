@@ -30,7 +30,7 @@ private:
     RN2483InitS initField;
 
 private:
-    bool checkAnswer(char *answer);
+    bool checkAnswer(const char *answer);
 
 public:
     RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
@@ -83,10 +83,10 @@ public:
      *             from  00 to FF
      * <data>: hexadecimal number representing data, from 00 to FF
      * 
-     * Response: ok if the parameters (address and data) are valid
-     *           invalid_param if the parameters (address and data) are not valid
+     * Response: true if the parameters (address and data) are valid
+     *           false if the parameters (address and data) are not valid
      */
-    const char* setUserEEprom(char address, char data);
+    bool setUserEEprom(char address, char data);
 
     /*
      * This command informs the RN2483 module to do an ADC conversion on the VDD.
@@ -128,8 +128,8 @@ public:
      *  <mode>: string representing the modulation method, 
      *              either lora or fsk.
      *
-     *  Response: ok if the modulation is valid
-     *            invalid_param if the modulation is not valid
+     *  Response: true if the modulation is valid
+     *            false if the modulation is not valid
      */
     bool setRadioMode (char *radioMode);
 };
