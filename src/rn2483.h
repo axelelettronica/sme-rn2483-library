@@ -2,9 +2,11 @@
 #define RN2483_H
 
 #include <Arduino.h>
-#include "lora\rn2483Model.h"
+#include "lora/rn2483Model.h"
 
 #define HWEUI_LEN 8
+const int8_t  L_DEFAULT_PORT = 1;
+const int8_t  L_CONFIGURED_PORT = 255;
 
 typedef enum {
     UnknownRadio,
@@ -12,30 +14,79 @@ typedef enum {
     FSK
 }radioModeE;
 
+typedef enum {
+    TX_ACK,
+    TX_NOACK,
+}txModeE;
+
 typedef struct {
     char sw:1;
     char hwEUI:1;
+    char macAppEUI:1;
     radioModeE radioMode;
 }RN2483InitS;
 
+typedef enum {
+    RN_OK,
+    RN_ERR,
+} errE;
+
+typedef enum {
+    OTAA,
+    ABP,
+} joinModeE;
+
+typedef enum {
+    BAND_868,
+    BAND_433,
+} bandE;
+
+#define RN_BUFFER_LEN   100
+
+#define TX      1
+#define RX      0
+
+
+typedef struct {
+    uint8_t idx;
+    uint8_t data[RN_BUFFER_LEN];
+} rnMsgT;
+
+
+#define RN_MAC_EUI_LEN  16
 
 class RN2483 {
 private:
     int answerLen;
     char *bufferAnswer;
     int bufferAnswerLen;
-    char swVer[SW_VER_LEN];
-    char answer[SMALL_ANSWER_DATA_LEN];
-    char hwEUI[HWEUI_LEN];
+    char swVer[SW_VER_LEN+1];
+    char answer[SMALL_ANSWER_DATA_LEN+1];
+    char hwEUI[RN_MAC_EUI_LEN+1];
+    char macAppEUI[RN_MAC_EUI_LEN+1];
+    //char macDevEui[RN_MAC_EUI_LEN+1];
+    
     RN2483InitS initField;
-
+    uint8_t port;
+    
+    rnMsgT rx, tx;
+    //uint8_t cur_dir;
 private:
     bool checkAnswer(const char *answer);
-
+    void dataToHexString(const char*const beginIt, const char*const endIt, String& str);
 public:
     RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
     void init();
+    bool available();
+    const char* read(void);
+    
+    void handleRxData(uint8_t inChar);
+    char* getRxData(void);
+    bool rxDataReady(void);
+    
     void rawData(String stream);
+    errE sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type);
+
     inline void prepareAnswer(char *buffer, int bufferLen){
         bufferAnswer = buffer;
         bufferAnswerLen = bufferLen;
@@ -43,8 +94,16 @@ public:
     boolean hasAnswer(void);
     inline const char* getLastAnswer(void) {return bufferAnswer;};
 
-
-
+    // MAC COmmands
+    errE sendCmd(String stream);
+    errE macResetCmd(bandE band = BAND_868); 
+    errE macTxCmd(String stream, int8_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
+    errE macJoinCmd(joinModeE  mode = OTAA); 
+    const char* getMacAppEUI(void);
+    errE macSetDevEUICmd(String stream);
+    errE macSetAppEUICmd(String stream);    
+    errE macSetAppKeyCmd(String stream);
+    
     //SYS command
     /*
      * Returns the information on hardware platform,
@@ -103,7 +162,8 @@ public:
      * Response: hexadecimal number representing the preprogrammed EUI node address
      *
      */
-    const char* getHwEUI(void);
+    //const char* 
+    const char * getHwEUI(void);
 
 
     //RADIO command

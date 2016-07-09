@@ -18,8 +18,15 @@
 
 #define SYS_GET_HWEUI       "sys get hweui"
 
+// MAC Commands
+#define MAC_GET_APP_EUI     "mac get appeui"
+#define MAC_RESET_CMD       "mac reset "
+#define MAC_TX_CMD          "mac tx "
+#define MAC_JOIN_CMD        "mac join "
 
-
+#define MAC_SET_DEV_EUI     "mac set deveui "
+#define MAC_SET_APP_EUI     "mac set appeui "
+#define MAC_SET_APP_KEY     "mac set appkey "
 
 // Radio command
 #define RADIO_GET_MODE      "radio get mod"

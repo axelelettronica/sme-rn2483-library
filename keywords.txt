@@ -1,0 +1,48 @@
+#######################################
+# Syntax Coloring Map for SE868-AS
+#######################################
+
+#######################################
+# Library (KEYWORD3)
+#######################################
+smeGps	     KEYWORD3
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	             KEYWORD2
+available            KEYWORD 2
+read                 KEYWORD 2
+handleRxData         KEYWORD 2
+getRxData            KEYWORD 2
+rxDataReady          KEYWORD 2
+rawData              KEYWORD 2
+sendData             KEYWORD 2
+prepareAnswer        KEYWORD 2
+boolean hasAnswer    KEYWORD 2
+getLastAnswer        KEYWORD 2
+sendCmd              KEYWORD 2
+macResetCmd          KEYWORD 2
+macTxCmd             KEYWORD 2
+macJoinCmd           KEYWORD 2
+getMacAppEUI         KEYWORD 2
+macSetDevEUICmd      KEYWORD 2
+macSetAppEUICmd      KEYWORD 2
+macSetAppKeyCmd      KEYWORD 2
+getVersion           KEYWORD 2
+factoryReset         KEYWORD 2
+reset                KEYWORD 2
+getUserEEprom        KEYWORD 2
+setUserEEprom        KEYWORD 2
+getPower             KEYWORD 2
+getHwEUI             KEYWORD 2
+setRadioMode         KEYWORD 2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
