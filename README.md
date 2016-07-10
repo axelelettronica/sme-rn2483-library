@@ -3,38 +3,20 @@
 
 This is a library for the ST VL6180X component.
 
-The SE868-AS is a GPS Smart antenna module featuring an embedded antenna
-with an optimized RF path and standard SMT mounting.
+Microchip’s RN2483 Low-Power Long Range LoRa Technology Transceiver module
+provides an easy to use, low-power solution for long range wireless data transmission. 
+The advanced command interface offers rapid time to market.
+The RN2483 module complies with the LoRaWAN Class A protocol specifications. 
+It integrates RF, a baseband controller, command Application Programming Interface (API) processor, 
+making it a complete long range Solution.
 
-The SE868-AS features an 11 x 11 mm QFN package based on a low-power consumption
-MT3337 GPS chipset and an embedded 9x9mm antenna on top of the module.
-
-The SE868-AS is designed to track and navigate GPS and QZSS constellations,
-giving the positioning data though standard UART at a very low power rate.
-
-The SE868-AS provides customers customers with a seamless integration solution,
-whether the RF chain is subject to several constraints in terms of host PCB
-or if a preassembled antenna solution is required.
-
-The SE868-AS module has the same form, fit, and protocol as its multi-constellation counterpart,
-the SE868-A. This enables integrators and developers to design their applications once
-and take advantage of the flexibility afforded by the combination of the different and scalable GNSS technologies.
-
-The Jupiter SE868-AS, with its companion multi-GNSS module SE868-A,
-extends the Telit smart antenna portfolio and provides the optimum mix of performances,
-cost and  product scalability.
-
-The Jupiter SE868-AS supports ephemeris file injection (A-GPS) as well as
-Satellite Based Augmentation System (SBAS) to increase position accuracy.
-Its onboard software engine is able to locally predict ephemeris up to three days in advance,
-starting from ephemeris data broadcast by GNSS satellites received by the module.
-An external or host memory is required to store the Ephemeris files.
+The RN2483 module is suitable for simple long range sensor applications with external host MCU.
 
 
-[* Telit  SE868-A Home Page *](http://www.telit.com/products/product-service-selector/product-service-selector/show/product/jupiter-se868-as/)
+[* Microchip RN2483 Home Page *](http://www.microchip.com/wwwproducts/en/RN2483)
 
 
-It was principally designed to work with the SmartEverything board, but could
+It was principally designed to work with the SmartEverything Lion board, but could
 be easily adapt and use on every Arduino and Arduino Certified boards.
 
 Written by Seve <seve@axelelettronica.it>.
@@ -48,9 +30,8 @@ Written by Seve <seve@axelelettronica.it>.
 ## Releases  
 ---  
 #### v1.0.0 First Release  
-#### v1.0.1 Second Release 19-Dec-2015  
-* Fixed Issue:<br>  
-    Added example to set the GPS module in standby to reduce power consumption<br>.  
+* First development:<br>  
+    Added main infrastructure<br>.  
  
 ## Documentation
 --------------
