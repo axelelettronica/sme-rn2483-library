@@ -72,11 +72,16 @@ private:
     rnMsgT rx, tx;
     //uint8_t cur_dir;
 private:
+
+    void rawData(String stream);
+    boolean hasAnswer(void);
     bool checkAnswer(const char *answer);
     void dataToHexString(const char*const beginIt, const char*const endIt, String& str);
+    errE sendCmd(String stream);
 public:
+
     RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
-    void init();
+    void begin();
     bool available();
     const char* read(void);
     
@@ -84,24 +89,24 @@ public:
     char* getRxData(void);
     bool rxDataReady(void);
     
-    void rawData(String stream);
+    errE sendRawCmd(String stream);
     errE sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type);
 
     inline void prepareAnswer(char *buffer, int bufferLen){
         bufferAnswer = buffer;
         bufferAnswerLen = bufferLen;
     };
-    boolean hasAnswer(void);
     inline const char* getLastAnswer(void) {return bufferAnswer;};
 
     // MAC COmmands
-    errE sendCmd(String stream);
     errE macResetCmd(bandE band = BAND_868); 
     errE macTxCmd(String stream, int8_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
     errE macJoinCmd(joinModeE  mode = OTAA); 
     const char* getMacAppEUI(void);
     errE macSetDevEUICmd(String stream);
     errE macSetAppEUICmd(String stream);    
+    errE macSetNtwSessKeyCmd(String stream);
+    errE macSetAppSessKeyCmd(String stream);
     errE macSetAppKeyCmd(String stream);
     
     //SYS command
@@ -196,4 +201,5 @@ public:
 
 // external variable used by the sketches
 extern RN2483  lora;
+extern bool loraDbg;
 #endif

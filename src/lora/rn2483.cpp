@@ -1,6 +1,9 @@
+#include <Arduino.h>
+#include <Uart.h>
 #include "../rn2483.h"
 #include "rn2483Model.h"
-  
+
+bool loraDbg = false;  
 
 static const char* s_hexTable[256] =
 {
@@ -35,7 +38,7 @@ RN2483::dataToHexString(const char *const beginIt, const char *const endIt, Stri
 
 
 
-void RN2483::init() {
+void RN2483::begin() {
     iotAntenna.begin(57600);
     port = L_DEFAULT_PORT;
     memset (&rx, 0, sizeof(rnMsgT));
@@ -46,6 +49,10 @@ void RN2483::rawData(String stream) {
     answerLen =0; // reset Answer Counter
     stream.concat("\r\n");
     iotAntenna.print(stream);
+    if (loraDbg) {
+        SerialUSB.print(" ");
+        SerialUSB.print((char *)stream.c_str());            
+    }
 }
 
  
@@ -62,6 +69,11 @@ errE RN2483::sendCmd(String stream)
     errE err = (checkAnswer(getLastAnswer()) ? RN_OK : RN_ERR);
     memset(&tx, 0, sizeof(tx));
     return err;
+}
+
+errE RN2483::sendRawCmd(String stream)
+{
+    return sendCmd(stream);
 }
     
 errE RN2483::sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type)
@@ -89,16 +101,31 @@ errE RN2483::sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type)
 }
     
 boolean RN2483::hasAnswer(void) {
+    bool flush = true;
+
     while (iotAntenna.available()) {
+
         bufferAnswer[answerLen] = iotAntenna.read();
+        if (flush && 
+            ((bufferAnswer[answerLen] == '\r') || 
+             (bufferAnswer[answerLen] == '\n'))) {
+            continue;
+        } else   
+          flush = false;
 
         // the answer ends with the \n char
         if ((answerLen >1) && 
             (bufferAnswer[answerLen-1] == '\r') &&
             (bufferAnswer[answerLen] == '\n')) {
-             Serial1.print("\nAnsw> ");
-             Serial1.println((char *)bufferAnswer);            
-             return true;
+             if (loraDbg) {
+                 SerialUSB.print("\nAnsw> ");
+                 SerialUSB.print((char *)bufferAnswer);            
+             }       
+             delay(10);
+             if (!iotAntenna.available()) {
+                 bufferAnswer[answerLen-1] = '\0';
+                 return true;
+             }
         }
         answerLen++;
 
@@ -356,6 +383,22 @@ RN2483::macSetAppEUICmd(String stream)
     return sendCmd(msgStr);
 }
   
+errE
+RN2483::macSetNtwSessKeyCmd(String stream)
+{
+    String msgStr(MAC_SET_NTW_SESS_KEY);
+    msgStr.concat(stream);
+    return sendCmd(msgStr);
+}
+
+errE
+RN2483::macSetAppSessKeyCmd(String stream)
+{
+    String msgStr(MAC_SET_APP_SESS_KEY);
+    msgStr.concat(stream);
+    return sendCmd(msgStr);
+}
+
 errE
 RN2483::macSetAppKeyCmd(String stream)
 {
