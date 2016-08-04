@@ -76,10 +76,10 @@ errE RN2483::sendRawCmd(String stream)
     return sendCmd(stream);
 }
     
-errE RN2483::sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type)
+errE RN2483::sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type)
 {
     String msgStr(MAC_TX_CMD);
-    uint8_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
+    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
     String dataStr;
  
     if(!data) return RN_ERR;
@@ -127,6 +127,7 @@ boolean RN2483::hasAnswer(void) {
                  return true;
              }
         }
+
         answerLen++;
 
         // cannot receive more data than the allocated buffer
@@ -438,10 +439,10 @@ errE RN2483::macResetCmd(bandE band)
 }
 
 
-errE RN2483::macTxCmd(String stream, int8_t portId, txModeE type)
+errE RN2483::macTxCmd(String stream, int16_t portId, txModeE type)
 {
     String msgStr(MAC_TX_CMD);
-    uint8_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
+    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
     String dataStr;
     
     msgStr.concat((type == TX_NOACK) ? "uncnf " : "cnf ");
