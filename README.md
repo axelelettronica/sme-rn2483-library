@@ -17,7 +17,7 @@ The RN2483 module is suitable for simple long range sensor applications with ext
 
 
 It was principally designed to work with the SmartEverything Lion board, but could
-be easily adapt and use on every Arduino and Arduino Certified boards.
+be easily adapted and used on every Arduino and Arduino Certified boards.
 
 Written by Seve <seve@axelelettronica.it>.
 
