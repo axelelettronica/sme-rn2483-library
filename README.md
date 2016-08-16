@@ -1,7 +1,7 @@
-# SmartEverything Telit SE868-AS GPS System
+# SmartEverything Lion - loRa IoT transmission
 ----
 
-This is a library for the ST VL6180X component.
+This is a library for the Microchip RN2483 loRaWAN component.
 
 Microchip’s RN2483 Low-Power Long Range LoRa Technology Transceiver module
 provides an easy to use, low-power solution for long range wireless data transmission. 
@@ -17,7 +17,7 @@ The RN2483 module is suitable for simple long range sensor applications with ext
 
 
 It was principally designed to work with the SmartEverything Lion board, but could
-be easily adapt and use on every Arduino and Arduino Certified boards.
+be easily adapted and used on every Arduino and Arduino Certified boards.
 
 Written by Seve <seve@axelelettronica.it>.
 
@@ -30,8 +30,8 @@ Written by Seve <seve@axelelettronica.it>.
 ## Releases  
 ---  
 #### v1.0.0 First Release  
-* First development:<br>  
-    Added main infrastructure<br>.  
+* **First development:**  
+    Added main infrastructure.  
  
 ## Documentation
 --------------

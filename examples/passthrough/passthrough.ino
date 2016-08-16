@@ -27,55 +27,43 @@ void ledBlink (int led, bool status, unsigned int msec)
 
 void setup() {
 
-    bool err = false;
     loraDbg = true;
     ledYellowOneLight(LOW);
     ledYellowTwoLight(LOW);   
+
     //SerialUSB.begin(115200);
     SerialUSB.begin(57600);
+
     lora.begin();
     delay(100);
     lora.sendRawCmd("sys reset");
-    
-    // Waiting for the USB serial connection
-   // while (!SerialUSB) {
-    //    ;
-    //}
-
-    // first time get from Hw
-    //lora.getVersion();
-    
-    //SerialUSB.print("FW Version :");
-    //SerialUSB.println(lora.getVersion());
 }
 
 uint8_t buff_size = 100;
-char buff[100] = {};
+char    buff[100] = {};
 uint8_t i = 0;
-char c;
+char    c;
+
 void loop() {
-    static int loop_cnt = 0;
     
     if (SerialUSB.available()) {
-      c = SerialUSB.read();    
-      SerialUSB.write(c); 
-      buff[i++] = c;
-      if (c == '\n') {
-          lora.sendRawCmd(buff);
-          i = 0;
-          memset(buff, 0, sizeof(buff));
-          ledBlink(TX_LED, HIGH, 50);
-      }
+        c = SerialUSB.read();    
+        SerialUSB.write(c); 
+        buff[i++] = c;
+
+        if (c == '\n') {
+            lora.sendRawCmd(buff);
+            i = 0;
+            memset(buff, 0, sizeof(buff));
+            ledBlink(TX_LED, HIGH, 50);
+        }
     }
 
     if (lora.available()) {
-        //String data received from Lora Module;
-        //SerialUSB.print("\nRx> ");  
         SerialUSB.print(lora.read());
         ledBlink(RX_LED, HIGH, 50);
     }
 
-    loop_cnt++;
     delay(10);
 }
 
