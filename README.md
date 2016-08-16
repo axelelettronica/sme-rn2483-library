@@ -30,7 +30,7 @@ Written by Seve <seve@axelelettronica.it>.
 ## Releases  
 ---  
 #### v1.0.0 First Release  
-* <br>First development:</br>  
+* **First development:**  
     Added main infrastructure.  
  
 ## Documentation
