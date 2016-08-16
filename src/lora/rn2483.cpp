@@ -38,21 +38,25 @@ RN2483::dataToHexString(const char *const beginIt, const char *const endIt, Stri
 
 
 
-void RN2483::begin() {
-    iotAntenna.begin(57600);
+void RN2483::begin(long speed, Uart *serial) {
+    this->comm = serial;
+    comm->begin(speed);
+
+    //iotAntenna.begin(19200);
     port = L_DEFAULT_PORT;
     memset (&rx, 0, sizeof(rnMsgT));
         //cur_dir = RX;
 }
 
+
 void RN2483::rawData(String stream) {
     answerLen =0; // reset Answer Counter
     stream.concat("\r\n");
-    iotAntenna.print(stream);
-    if (loraDbg) {
-        SerialUSB.print(" ");
-        SerialUSB.print((char *)stream.c_str());            
-    }
+    comm->print(stream);
+    //if (loraDbg) {
+    //    SerialUSB.print(" ");
+    //    SerialUSB.print((char *)stream.c_str());            
+    //}
 }
 
  
@@ -76,10 +80,10 @@ errE RN2483::sendRawCmd(String stream)
     return sendCmd(stream);
 }
     
-errE RN2483::sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type)
+errE RN2483::sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type)
 {
     String msgStr(MAC_TX_CMD);
-    uint8_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
+    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
     String dataStr;
  
     if(!data) return RN_ERR;
@@ -103,9 +107,9 @@ errE RN2483::sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type)
 boolean RN2483::hasAnswer(void) {
     bool flush = true;
 
-    while (iotAntenna.available()) {
+    while (comm->available()) {
 
-        bufferAnswer[answerLen] = iotAntenna.read();
+        bufferAnswer[answerLen] = comm->read();
         if (flush && 
             ((bufferAnswer[answerLen] == '\r') || 
              (bufferAnswer[answerLen] == '\n'))) {
@@ -118,15 +122,17 @@ boolean RN2483::hasAnswer(void) {
             (bufferAnswer[answerLen-1] == '\r') &&
             (bufferAnswer[answerLen] == '\n')) {
              if (loraDbg) {
-                 SerialUSB.print("\nAnsw> ");
+                 //SerialUSB.print("\nAnsw> ");
+                 //SerialUSB.print("\n> ");
                  SerialUSB.print((char *)bufferAnswer);            
              }       
              delay(10);
-             if (!iotAntenna.available()) {
+             if (!comm->available()) {
                  bufferAnswer[answerLen-1] = '\0';
                  return true;
              }
         }
+
         answerLen++;
 
         // cannot receive more data than the allocated buffer
@@ -341,9 +347,9 @@ bool
 RN2483::available(void)
  {
 
-     while (iotAntenna.available()) {
+     while (comm->available()) {
          // get the new byte
-         char inChar = (char)iotAntenna.read();
+         char inChar = (char)comm->read();
          handleRxData(inChar);
          
          if (rxDataReady()) {
@@ -438,10 +444,10 @@ errE RN2483::macResetCmd(bandE band)
 }
 
 
-errE RN2483::macTxCmd(String stream, int8_t portId, txModeE type)
+errE RN2483::macTxCmd(String stream, int16_t portId, txModeE type)
 {
     String msgStr(MAC_TX_CMD);
-    uint8_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
+    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
     String dataStr;
     
     msgStr.concat((type == TX_NOACK) ? "uncnf " : "cnf ");

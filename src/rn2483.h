@@ -5,8 +5,8 @@
 #include "lora/rn2483Model.h"
 
 #define HWEUI_LEN 8
-const int8_t  L_DEFAULT_PORT = 1;
-const int8_t  L_CONFIGURED_PORT = 255;
+const int16_t  L_DEFAULT_PORT = 1;
+const int16_t  L_CONFIGURED_PORT = 0xFFFF;
 
 typedef enum {
     UnknownRadio,
@@ -57,6 +57,7 @@ typedef struct {
 
 class RN2483 {
 private:
+    Uart *comm;
     int answerLen;
     char *bufferAnswer;
     int bufferAnswerLen;
@@ -67,7 +68,7 @@ private:
     //char macDevEui[RN_MAC_EUI_LEN+1];
     
     RN2483InitS initField;
-    uint8_t port;
+    uint16_t port;
     
     rnMsgT rx, tx;
     //uint8_t cur_dir;
@@ -81,7 +82,7 @@ private:
 public:
 
     RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
-    void begin();
+    void begin(long speed = 57600, Uart *serial=&iotAntenna);
     bool available();
     const char* read(void);
     
@@ -90,7 +91,7 @@ public:
     bool rxDataReady(void);
     
     errE sendRawCmd(String stream);
-    errE sendData(char *data, uint16_t dataLen, int8_t portId, txModeE type);
+    errE sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type);
 
     inline void prepareAnswer(char *buffer, int bufferLen){
         bufferAnswer = buffer;
@@ -100,7 +101,7 @@ public:
 
     // MAC COmmands
     errE macResetCmd(bandE band = BAND_868); 
-    errE macTxCmd(String stream, int8_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
+    errE macTxCmd(String stream, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
     errE macJoinCmd(joinModeE  mode = OTAA); 
     const char* getMacAppEUI(void);
     errE macSetDevEUICmd(String stream);
