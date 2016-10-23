@@ -3,7 +3,7 @@
 
 This is a library for the Microchip RN2483 loRaWAN component.
 
-Microchipâ€™s RN2483 Low-Power Long Range LoRa Technology Transceiver module
+Microchip’s RN2483 Low-Power Long Range LoRa Technology Transceiver module
 provides an easy to use, low-power solution for long range wireless data transmission. 
 The advanced command interface offers rapid time to market.
 The RN2483 module complies with the LoRaWAN Class A protocol specifications. 
@@ -19,7 +19,7 @@ The RN2483 module is suitable for simple long range sensor applications with ext
 It was principally designed to work with the SmartEverything Lion board, but could
 be easily adapted and used on every Arduino and Arduino Certified boards.
 
-Written by Seve <seve@axelelettronica.it>.
+Provided by <development@axelelettronica.it>.
 
 ## Repository Contents
 -------------------
