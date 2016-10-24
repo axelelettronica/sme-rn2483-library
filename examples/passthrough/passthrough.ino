@@ -43,6 +43,7 @@ uint8_t buff_size = 100;
 char    buff[100] = {};
 uint8_t i = 0;
 char    c;
+int len = 0;
 
 void loop() {
     
@@ -60,7 +61,7 @@ void loop() {
     }
 
     if (lora.available()) {
-        SerialUSB.print(lora.read());
+        SerialUSB.print(lora.read(&len));
         ledBlink(RX_LED, HIGH, 50);
     }
 

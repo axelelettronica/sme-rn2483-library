@@ -5,7 +5,7 @@ char buffer[100];
 
 void setup() {
     SerialUSB.begin(115200);
-    lora.init();
+    lora.begin();
     delay(100);
 
     while (!SerialUSB) {
@@ -38,7 +38,7 @@ void loop() {
 
 
     // Read HwEUI
-    SerialUSB.print("\nhwEUI is (NON VA ANCORA): ");
+    SerialUSB.print("\nhwEUI is : ");
     SerialUSB.println(lora.getHwEUI());
 
     // Read Radio modulation Mode

@@ -53,10 +53,10 @@ void RN2483::rawData(String stream) {
     answerLen =0; // reset Answer Counter
     stream.concat("\r\n");
     comm->print(stream);
-    //if (loraDbg) {
-    //    SerialUSB.print(" ");
-    //    SerialUSB.print((char *)stream.c_str());            
-    //}
+    if (loraDbg) {
+        SerialUSB.print(" ");
+        SerialUSB.print((char *)stream.c_str());            
+    }
 }
 
  
@@ -360,11 +360,12 @@ RN2483::available(void)
 }
  
  const char*
- RN2483::read(void)
+ RN2483::read(int *len)
  {
      String msgStr;
      msgStr.concat(getRxData());
      memset(&rx, 0, sizeof(rx));
+     *len = msgStr.length();
      return msgStr.c_str();
  }
 

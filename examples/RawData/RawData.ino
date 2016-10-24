@@ -8,14 +8,14 @@ char buffer[100];
 
 void setup() {
     SerialUSB.begin(57600);
-    lora.init();
+    lora.begin();
     delay(100);
     
     while (!SerialUSB) {
         ;
     }
     
-    lora.rawData("sys get ver");
+    lora.sendRawCmd("sys get ver");
     lora.prepareAnswer(buffer, sizeof(buffer));
 }
 

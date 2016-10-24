@@ -84,7 +84,7 @@ public:
     RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
     void begin(long speed = 57600, Uart *serial=&iotAntenna);
     bool available();
-    const char* read(void);
+    const char* read(int *len);
     
     void handleRxData(uint8_t inChar);
     char* getRxData(void);

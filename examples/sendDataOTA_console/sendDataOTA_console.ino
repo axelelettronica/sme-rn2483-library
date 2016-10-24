@@ -18,23 +18,43 @@
  *  So, in the end, in the setup phase the module has to set all
  *  these 6 parameters before issuing a "mac join abp"
  *
+ * * INPUT DATA (for OTA)
+ * 
+ *  1) device EUI, 
+ *  2) application EUI 
+ *  3) and application key 
+ *  the OTAA procedure can start.
+ *  
+ *  - sys get hweui 0004A30B001B2bla
+ *  
+ *  - mac set deveui 0004A30B001B2bla
+ *  - mac set appkey 01020304050607080102030blablabla //same as in ttncl
+ *  - mac set appeui 70B3D57ED0000bla //same as ttncl
+ *  - mac set adr off
+ *  - mac set rx2 3 869525bla
+ *  - mac save
+ *  - mac join otaa
+ok
+**mac tx uncnf 1 7B39387D**
  */
-int len = 0;
 
+bool joined = false;
+int len = 0;
 void setup() {
 
     bool err = false;
     loraDbg = true;
-    
+    ledYellowOneLight(LOW); // turn the LED off
+    ledYellowTwoLight(HIGH); // turn the LED on
+    delay(500);   
     SerialUSB.begin(115200);
 
     lora.begin();
-    delay(100);
-    
     // Waiting for the USB serial connection
     while (!SerialUSB) {
         ;
     }
+
 
     // first time get from Hw
     lora.getVersion();
@@ -43,7 +63,7 @@ void setup() {
     SerialUSB.println(lora.getVersion());
 
      // Write HwEUI
-    SerialUSB.println("Writing DEV EUI ...");
+    SerialUSB.println("Writing DEV EUI ffffffffffff0000");
     //err = lora.macSetDevEUICmd("0004A30B001A2A9E");
     err = lora.sendRawCmd("mac set deveui ffffffffffff0000");
     if (err) {
@@ -51,13 +71,13 @@ void setup() {
     }
 
     
-    SerialUSB.println("Writing APP EUI ...");
+    SerialUSB.println("Writing APP EUI ffffffffffff0000");
         err = lora.sendRawCmd("mac set appeui ffffffffffff0000");
     //err = lora.macSetAppEUICmd("0000000000000001");
     if (err) {
         SerialUSB.println("\nFailed writing APP EUI");
     }
-
+/*
     err = lora.macSetNtwSessKeyCmd("2b7e151628aed2a6abf7158809cf4f3c");
     if (err) {
         SerialUSB.println("\nFailed writing Network Session Key");
@@ -67,7 +87,8 @@ void setup() {
     if (err) {
         SerialUSB.println("\nFailed writing APP Session Key");
     }
-
+*/
+    SerialUSB.println("Writing APP KEY ffffffffffffffffffffffffffff0000");
     lora.macSetAppKeyCmd("ffffffffffffffffffffffffffff0000");
 
     if (err) {
@@ -85,20 +106,39 @@ void setup() {
     if (err) {
         SerialUSB.println("\nFailed settin automatic reply");
     }
-    
-    while (lora.macJoinCmd(ABP) /* lora.sendRawCmd("mac join abp")*/) {
-        SerialUSB.println("\nABP JOIN FAILED ");
+    //err = lora.sendRawCmd("mac set adr on");
+    //if (err) {
+    //    SerialUSB.println("\nFailed settin automatic reply");
+    //}
+    delay(30000);
+   
+    ledYellowTwoLight(LOW); // turn the LED off 
+    //SEVE    
+           lora.sendRawCmd("mac pause");
+       delay(10);
+       lora.sendRawCmd("mac resume");
+              delay(10);
+    while (lora.macJoinCmd(OTAA)) {
+                 lora.sendRawCmd("mac pause");
+       delay(10);
+       lora.sendRawCmd("mac resume");
+              delay(10);
+        SerialUSB.println("\nOTA JOIN FAILED ");
         delay(5000);
     }     
-    SerialUSB.println("\nABP Network JOINED! ");
+    SerialUSB.println("\nOTA Network JOINED! ");
+    delay(25000);
 }
 
 uint8_t buff_size = 100;
 char buff[100] = {};
 uint8_t i = 0;
 char c;
+
+static long LOOP_PERIOD = 30000;
+static long loop_cnt = LOOP_PERIOD - 300;  
 void loop() {
-    static int loop_cnt = 0;
+
     
     if (SerialUSB.available()) {
       c = SerialUSB.read();    
@@ -114,19 +154,36 @@ void loop() {
     if (lora.available()) {
         //String data received from Lora Module;
         SerialUSB.print("\nRx> ");  
-        SerialUSB.print(lora.read(&len));
+        memcpy(buff, lora.read(&len), len);
+        //SerialUSB.print(lora.read(&len));
+        SerialUSB.print(buff);
+        if (!joined && (len > 6) && 
+            (buff[0] == 'a') &&
+            (buff[1] == 'c') && (buff[1] == 'c')) {
+              joined = true;
+            }
     }
 
-    if (!(loop_cnt % 5000)) {
-    // Sending String to the Lora Module towards the gateway
+    if (!(loop_cnt % LOOP_PERIOD)) { //5 minuti
+       if (joined) {
+       // Sending String to the Lora Module towards the gateway
        lora.sendRawCmd("mac pause");
        delay(10);
        lora.sendRawCmd("mac resume");
+       ledYellowTwoLight(HIGH); // turn the LED on
        lora.macTxCmd("0123", 1, TX_ACK);
-       //lora.macTxCmd("0123");
-       //lora.macTxCmd("0123", 1);
-    } else {
-      //lora.macTxCmd("0");   
+       // SEVE
+       //lora.macTxCmd("0123",1);
+       delay(1000);
+       ledYellowTwoLight(LOW); // turn the LED off 
+       } else {
+       lora.sendRawCmd("mac pause");
+       delay(10);
+       lora.sendRawCmd("mac resume");
+              delay(10);
+        lora.macJoinCmd(OTAA);
+       }
+      loop_cnt = 0; 
     }
     loop_cnt++;
     delay(10);
