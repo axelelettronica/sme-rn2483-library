@@ -1,5 +1,5 @@
-#ifndef RN2483_MODEL_H
-#define RN2483_MODEL_H
+#ifndef _RN2483_MODEL_H_
+#define _RN2483_MODEL_H_
 
 #define SMALL_ANSWER_DATA_LEN    20 // tuned on "sys get hweui" answer
 
