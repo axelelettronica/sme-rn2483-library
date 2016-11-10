@@ -102,6 +102,7 @@ public:
     // MAC COmmands
     errE macResetCmd(bandE band = BAND_868); 
     errE macTxCmd(String stream, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
+    errE macTxCmd(char *data, int16_t len, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
     errE macJoinCmd(joinModeE  mode = OTAA); 
     const char* getMacAppEUI(void);
     errE macSetDevEUICmd(String stream);

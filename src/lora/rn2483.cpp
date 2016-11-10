@@ -460,6 +460,22 @@ errE RN2483::macTxCmd(String stream, int16_t portId, txModeE type)
     return sendCmd(msgStr);
 }
 
+errE RN2483::macTxCmd(char *data, int16_t len, int16_t portId, txModeE type)
+{
+    String msgStr(MAC_TX_CMD);
+    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
+    String dataStr;
+    
+    msgStr.concat((type == TX_NOACK) ? "uncnf " : "cnf ");
+    msgStr.concat(cmdPort);
+    msgStr.concat(" ");
+    dataToHexString(data, data+len, dataStr);
+    msgStr.concat(dataStr);
+
+    return sendCmd(msgStr);
+}
+
+
 errE RN2483::macJoinCmd(joinModeE mode)
 {
     String msgStr(MAC_JOIN_CMD);
