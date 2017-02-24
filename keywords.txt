@@ -20,8 +20,9 @@ read                 KEYWORD 2
 handleRxData         KEYWORD 2
 getRxData            KEYWORD 2
 rxDataReady          KEYWORD 2
-rawData              KEYWORD 2
+waitAnswer           KEYWORD 2
 sendData             KEYWORD 2
+sendRawCmd           KEYWORD 2
 prepareAnswer        KEYWORD 2
 boolean hasAnswer    KEYWORD 2
 getLastAnswer        KEYWORD 2
@@ -41,7 +42,26 @@ setUserEEprom        KEYWORD 2
 getPower             KEYWORD 2
 getHwEUI             KEYWORD 2
 setRadioMode         KEYWORD 2
-
+checkAnswer          KEYWORD 2
+macSave              KEYWORD 2
+macPause             KEYWORD 2
+macResume            KEYWORD 2
+macSetDevAddrCmd     KEYWORD 2   
+macSetNtwSessKeyCmd  KEYWORD 2
+macSetAppSessKeyCmd  KEYWORD 2
+macSetDataRate       KEYWORD 2
+macSetAdrOn          KEYWORD 2
+macSetAdrOff         KEYWORD 2
+macSetArOn           KEYWORD 2
+macSetArOff          KEYWORD 2
+getMacStatus         KEYWORD 2
+sysSleepCmd          KEYWORD 2
+sysSetSleep          KEYWORD 2
+sysWakeUp            KEYWORD 2
+getRadioMode         KEYWORD 2
+radioSetSync         KEYWORD 2
+radioSetPwr          KEYWORD 2
+radioGetPwr          KEYWORD 2
 #######################################
 # Constants (LITERAL1)
 #######################################

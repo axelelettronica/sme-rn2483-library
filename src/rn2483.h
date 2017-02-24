@@ -19,12 +19,6 @@ typedef enum {
     TX_NOACK,
 }txModeE;
 
-typedef struct {
-    char sw:1;
-    char hwEUI:1;
-    char macAppEUI:1;
-    radioModeE radioMode;
-}RN2483InitS;
 
 typedef enum {
     RN_OK,
@@ -47,10 +41,17 @@ typedef enum {
 #define RX      0
 
 
-typedef struct {
+class rnMsgT {
+public:
+    uint8_t len;
     uint8_t idx;
     uint8_t data[RN_BUFFER_LEN];
-} rnMsgT;
+public:
+    rnMsgT() {len = RN_BUFFER_LEN; init();}
+    ~rnMsgT() {}  
+    void init(void) {memset(data,0,RN_BUFFER_LEN); idx = 0;}
+    void prepare(void) { init();}    
+};
 
 
 #define RN_MAC_EUI_LEN  16
@@ -58,16 +59,15 @@ typedef struct {
 class RN2483 {
 private:
     Uart *comm;
-    int answerLen;
+/*    int answerLen;
     char *bufferAnswer;
     int bufferAnswerLen;
     char swVer[SW_VER_LEN+1];
     char answer[SMALL_ANSWER_DATA_LEN+1];
     char hwEUI[RN_MAC_EUI_LEN+1];
     char macAppEUI[RN_MAC_EUI_LEN+1];
-    //char macDevEui[RN_MAC_EUI_LEN+1];
+    //char macDevEui[RN_MAC_EUI_LEN+1];*/
     
-    RN2483InitS initField;
     uint16_t port;
     
     rnMsgT rx, tx;
@@ -76,42 +76,66 @@ private:
 
     void rawData(String stream);
     boolean hasAnswer(void);
-    bool checkAnswer(const char *answer);
     void dataToHexString(const char*const beginIt, const char*const endIt, String& str);
-    errE sendCmd(String stream);
+    uint8_t sendCmd(String stream);
 public:
 
-    RN2483(){initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;};
+    RN2483(){/*initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;*/};
     void begin(long speed = 57600, Uart *serial=&iotAntenna);
     bool available();
     const char* read(int *len);
+    const char* read(void);
     
     void handleRxData(uint8_t inChar);
     char* getRxData(void);
     bool rxDataReady(void);
+    uint8_t waitAnswer(void);    
+    const char* getLastAnswer(void);    
+    uint8_t sendRawCmd(String stream);
+    //uint8_t checkAnswer(const char *answer);
     
-    errE sendRawCmd(String stream);
+
     errE sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type);
+    uint8_t checkAnswer(const char *answer);
 
-    inline void prepareAnswer(char *buffer, int bufferLen){
-        bufferAnswer = buffer;
-        bufferAnswerLen = bufferLen;
-    };
-    inline const char* getLastAnswer(void) {return bufferAnswer;};
-
-    // MAC COmmands
+    /******* MAC Commands *******/
     errE macResetCmd(bandE band = BAND_868); 
+    errE macJoinCmd(joinModeE  mode = OTAA); 
+
     errE macTxCmd(String stream, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
     errE macTxCmd(char *data, int16_t len, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
-    errE macJoinCmd(joinModeE  mode = OTAA); 
+
+    inline void macSave(void) {sendCmd(MAC_SAVE_CMD);};
+    inline void macPause(void) {sendCmd(MAC_PAUSE_CMD);};
+    inline void macResume(void) {sendCmd(MAC_RESUME_CMD);};
+    
     const char* getMacAppEUI(void);
+
+    errE macSetDevAddrCmd(String stream);    
     errE macSetDevEUICmd(String stream);
     errE macSetAppEUICmd(String stream);    
     errE macSetNtwSessKeyCmd(String stream);
     errE macSetAppSessKeyCmd(String stream);
     errE macSetAppKeyCmd(String stream);
+    errE macSetDataRate(uint8_t dataRate); // 0..7    
+    // Setting the Adaptative Data Rate
+    inline void macSetAdrOn(void) {sendCmd(MAC_SET_ADR_ON_CMD);};    
+    inline void macSetAdrOff(void) {sendCmd(MAC_SET_ADR_OFF_CMD);};
+    // Setting the Automatic Reply
+    inline void macSetArOn(void) {sendCmd(MAC_SET_ADR_ON_CMD);};    
+    inline void macSetArOff(void) {sendCmd(MAC_SET_ADR_OFF_CMD);};   
+    const char* getMacStatus(void);
     
-    //SYS command
+    /******* SYS Commands *******/
+    errE sysSleepCmd(uint32_t msec);
+    errE sysSetSleep(char *time_str);
+    errE sysWakeUp(void);
+    
+    /*
+     * Resets and restarts the RN2483 module.
+     */
+    inline void reset(void) {sendCmd(SYS_RESET);};
+    
     /*
      * Returns the information on hardware platform,
      * firmware version, release date
@@ -122,12 +146,7 @@ public:
      * Resets the RN2483 module’s configuration data and user EEPROM
      * to factory default values and restarts the RN2483 module.
      */
-    inline void factoryReset(void){rawData(SYS_FACTORY_RESET);};
-
-    /*
-     * Resets and restarts the RN2483 module.
-     */
-    inline void reset(void) {rawData(SYS_RESET);};
+    inline void factoryReset(void){ sendCmd(SYS_FACTORY_RESET);};
 
     /*
      * Returns data from the requested user EEPROM <address>.
@@ -199,9 +218,14 @@ public:
      *            false if the modulation is not valid
      */
     bool setRadioMode (char *radioMode);
+    
+    errE radioSetSync(uint8_t sync);
+    
+    errE radioSetPwr(uint8_t pwr);
+    const char * radioGetPwr();
 };
 
 // external variable used by the sketches
 extern RN2483  lora;
-extern bool loraDbg;
+extern volatile bool loraDbg;
 #endif

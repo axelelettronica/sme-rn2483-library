@@ -1,49 +1,62 @@
+/*
+ *  SmartEverything Lion RN2483 Library - Passthrough
+ *
+ *  Thi example provides the direct access, through the USB 
+ *  console, to the RN2483 Microchip module for a direct configuration 
+ *
+ *  created 19 Nov 2016
+ *  by Seve (seve@ioteam.it)
+ *
+ *  This example is in the public domain
+ *  https://github.com/axelelettronica/sme-rn2483-library
+ *
+ *  SE868  more information available here:
+ *  http://www.microchip.com/wwwproducts/en/RN2483
+ */
+
 #include <Arduino.h>
 #include <rn2483.h>
 
-/*
- * This sketch provides the direct access, through the USB 
- * console to the RN2483 modulefor for a direct configuration 
- */
 
 #define TX_LED 0
 #define RX_LED 1
 
+char buff[100] = {};
+char c;
+unsigned char i = 0;
  
 
 void ledBlink (int led, bool status, unsigned int msec)
 {
     if (led == TX_LED) {
-        ledYellowOneLight(HIGH);   // turn the LED On by making the voltage HIGH  
-        delay(msec);          // wait for msec ms  
-        ledYellowOneLight(LOW);    // turn the LED off by making the voltage LOW
+        ledYellowOneLight(HIGH); // turn the LED On by making the voltage HIGH  
+        delay(msec);             // wait for msec ms  
+        ledYellowOneLight(LOW);  // turn the LED off by making the voltage LOW
     } else  {
-        ledYellowTwoLight(HIGH);   // turn the LED On by making the voltage HIGH  
-        delay(msec);          // wait for msec ms  
-        ledYellowTwoLight(LOW);    // turn the LED off by making the voltage LOW
+        ledYellowTwoLight(HIGH); // turn the LED On by making the voltage HIGH  
+        delay(msec);             // wait for msec ms  
+        ledYellowTwoLight(LOW);  // turn the LED off by making the voltage LOW
     }
 }
 
 
 void setup() {
 
-    loraDbg = true;
     ledYellowOneLight(LOW);
     ledYellowTwoLight(LOW);   
 
-    //SerialUSB.begin(115200);
     SerialUSB.begin(57600);
 
     lora.begin();
-    delay(100);
+
+    // Waiting for Console connection
+    while (!SerialUSB) {
+        ;
+    }
+
     lora.sendRawCmd("sys reset");
 }
 
-uint8_t buff_size = 100;
-char    buff[100] = {};
-uint8_t i = 0;
-char    c;
-int len = 0;
 
 void loop() {
     
@@ -61,7 +74,7 @@ void loop() {
     }
 
     if (lora.available()) {
-        SerialUSB.print(lora.read(&len));
+        SerialUSB.print(lora.read());
         ledBlink(RX_LED, HIGH, 50);
     }
 

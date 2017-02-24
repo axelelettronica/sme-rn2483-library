@@ -621,7 +621,7 @@ errE RN2483::radioSetSync(uint8_t sync)
         return RN_ERR;
     }
 }
-errE RN2483::radioSetPwr(uint8_t pwr)
+errE RN2483::RN2483radioSetPwrCmd(uint8_t pwr)
 {
     String msgStr(RADIO_SET_PWR);
     String dataStr;
