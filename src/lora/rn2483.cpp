@@ -11,8 +11,6 @@ typedef struct answer_t {
 } answerCodesType;
 
 
-
-
 const char asw_1_str[]  = "ok";
 const char asw_2_str[]  = "invalid_param";
 const char asw_3_str[]  = "not_joined";
@@ -151,8 +149,8 @@ uint8_t RN2483::sendCmd(String stream)
 }
 
 
-uint8_t RN2483::waitAnswer(void) {
-   // bool flush = true;
+uint8_t RN2483::waitAnswer(void) 
+{
     volatile unsigned int c = 0;
     
     tx.init();
@@ -560,19 +558,11 @@ char RN2483::sysGetUserEEprom(char address){
     itoa(address>>4, &bufferT[addPos], 16);
     itoa(address&0x0F, &bufferT[addPos+1], 16);
 
-    //prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
-    // send request
     sendCmd(bufferT);
-
-    // remain till buffer is completed
-    //while (!lora.hasAnswer()) {
-    //    delay(10);
-    //};
 
     // clean for 0xd & 0xa
     const char *pbuf = getLastAnswer();
-    //pbuf[2]=0;
-    //pbuf[3]=0;
+
     sscanf(pbuf, "%x", &ret);
 
     return ret;
@@ -582,7 +572,6 @@ bool RN2483::sysSetUserEEprom(char address, char data){
     unsigned char addPos = strlen(SYS_SET_NVM);
     char bufferT[SET_NVM_LEN];
 
-    //prepareAnswer(answer, SMALL_ANSWER_DATA_LEN);
     strcpy(bufferT,SYS_SET_NVM);
 
     itoa(address>>4, &bufferT[addPos], 16);
@@ -590,15 +579,8 @@ bool RN2483::sysSetUserEEprom(char address, char data){
     bufferT[addPos+2]=' ';
     itoa(data>>4, &bufferT[addPos+3], 16);
     itoa(data&0x0F, &bufferT[addPos+4], 16);
-    // send request
-    // rawData(bufferT);
-    return sendCmd(bufferT);
-    // remain till buffer is completed
-    // while (!hasAnswer()) {
-    //    delay(10);
-    //};
 
-    //return checkAnswer(getLastAnswer());
+    return sendCmd(bufferT);
 }
 
 const char * RN2483::sysGetVdd(void) 

@@ -80,26 +80,15 @@ public:
 class RN2483 {
 private:
     Uart *comm;
-/*    int answerLen;
-    char *bufferAnswer;
-    int bufferAnswerLen;
-    char swVer[SW_VER_LEN+1];
-    char answer[SMALL_ANSWER_DATA_LEN+1];
-    char hwEUI[RN_MAC_EUI_LEN+1];
-    char macAppEUI[RN_MAC_EUI_LEN+1];
-    //char macDevEui[RN_MAC_EUI_LEN+1];*/
-    
-    uint16_t port;
-    
+    uint16_t port;    
     rnMsgT rx, tx;
-    //uint8_t cur_dir;
+
 private:
 
     void dataToHexString(const char*const beginIt, const char*const endIt, String& str);
     void rawData(String stream);
     uint8_t checkAnswer(const char *answer);
     errE sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type);
-    // boolean hasAnswer(void);
     uint8_t sendCmd(String stream);
     uint8_t waitAnswer(void);    
     char* getRxData(void);
@@ -110,7 +99,7 @@ private:
     
 public:
 
-    RN2483(); //: comm(NULL) {/*initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;*/};
+    RN2483();
     void begin(long speed = 57600, Uart *serial=&iotAntenna);
     bool available();
     const char* read(int *len);
@@ -158,8 +147,6 @@ public:
     
     errE sysSleepCmd(uint32_t msec);
     
-    //errE sysSetSleep(String stream);
- 
     /*
      * Returns the information on hardware platform,
      * firmware version, release date
@@ -208,9 +195,6 @@ public:
      *
      */
     const char * sysGetHwEUI(void);
-        
-            
-    //errE sysWakeUp(void);
     
     /*
      * Resets and restarts the RN2483 module.
@@ -223,9 +207,6 @@ public:
      * to factory default values and restarts the RN2483 module.
      */
     const char * sysFactoryReset(void);
-
-
-
 
 
     /******* RADIO Commands *******/
@@ -263,4 +244,5 @@ public:
 // external variable used by the sketches
 extern RN2483  lora;
 extern volatile bool loraDbg;
+
 #endif
