@@ -10,26 +10,6 @@ typedef struct answer_t {
     char *str;
 } answerCodesType;
 
-typedef enum  answerCodes_t_  {
-    ASW_OK,
-    ASW_INVALID_PARAM,
-    ASW_NOT_JOINED,
-    ASW__NO_FREE_CHAN,
-    ASW_SILENT,
-    ASW_REJOIN_NEEDED,
-    ASW_BUSY,
-    ASW_PAUSED,
-    ASW_INVALID_LEN,
-    ASW_KEYS_NOT_INIT,
-    ASW_JOIN_DENIED,
-    ASW_JOIN_ACCEPTED,
-    ASW_RADIO_ERR,
-    ASW_RADIO_TX_OK,
-    ASW_TX_OK,
-    ASW_ERR,
-    ASW_STR,
-    ASW_CODES_NUM
-} answerCodes_t;
 
 
 
@@ -110,17 +90,6 @@ RN2483::dataToHexString(const char *const beginIt, const char *const endIt, Stri
 }
 
 
-
-void RN2483::begin(long speed, Uart *serial) {
-    this->comm = serial;
-    comm->begin(speed);
-
-    port = L_DEFAULT_PORT;
-    rx.init();
-    tx.init();
-}
-
-
 void RN2483::rawData(String stream) {
     stream.concat("\r\n");
     comm->print(stream);
@@ -130,11 +99,6 @@ void RN2483::rawData(String stream) {
     }
 }
 
-
-const char* RN2483::getLastAnswer(void)
-{
-    return (const char *)tx.data;
-}
 
 uint8_t RN2483::checkAnswer(const char *answer)
 {
@@ -147,21 +111,7 @@ uint8_t RN2483::checkAnswer(const char *answer)
     return ASW_STR;
 }
 
- 
-uint8_t RN2483::sendCmd(String stream)
-{
-    rawData(stream); 
-    waitAnswer();
-    return checkAnswer(getLastAnswer());
-}
 
-uint8_t RN2483::sendRawCmd(String stream)
-{
-    return sendCmd(stream);
-}
-
-
-    
 errE RN2483::sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type)
 {
     String msgStr(MAC_TX_CMD);
@@ -192,7 +142,15 @@ errE RN2483::sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type
     return RN_ERR;
         
 }
-    
+     
+uint8_t RN2483::sendCmd(String stream)
+{
+    rawData(stream);
+    waitAnswer();
+    return checkAnswer(getLastAnswer());
+}
+
+
 uint8_t RN2483::waitAnswer(void) {
    // bool flush = true;
     volatile unsigned int c = 0;
@@ -225,41 +183,6 @@ uint8_t RN2483::waitAnswer(void) {
     }
     return checkAnswer(getLastAnswer());
 }
-
-
-
-radioModeE RN2483::getRadioMode(void) 
-{
-    const char *answ;
-    if (ASW_STR == sendCmd(RADIO_GET_MODE)) {
-        answ = getLastAnswer();
-        if (*answ =='l') {
-            return LoRa;
-        } else if (*answ =='f') {
-            return FSK;
-        }
-    }
-
-    return UnknownRadio;
-}
-
-bool RN2483::setRadioMode (char *radioMode){
-
-    //char addPos = strlen(SYS_SET_NVM);
-    char bufferT[RADIO_MODE_LEN];
-    strcpy(bufferT,RADIO_SET_MODE);
-
-    memcpy(&bufferT[strlen(RADIO_SET_MODE)], radioMode, strlen(radioMode));
-
-    if (ASW_OK == sendCmd(bufferT)) {
-        return true;
-    }
-    return false;
-}
-
-//bool RN2483::checkAnswer(const char *answer){
-//    return (('o'==answer[0]) && ('k'==answer[1]));
-//}
 
 /****************************************************************************/
 
@@ -298,23 +221,12 @@ RN2483::handleRxData(uint8_t inChar)
      // read if rx data is ready
      return _rx_ready;
  }
- 
-bool
-RN2483::available(void)
- {
 
-     while (comm->available()) {
-         // get the new byte
-         char inChar = (char)comm->read();
-         handleRxData(inChar);
-         
-         if (rxDataReady()) {
-             return true;
-         }
-     }
-     return false;
-}
+/*****************************************************************************/
+/***************************       Public APIs      **************************/
+/*****************************************************************************/
  
+ /***************************** Generic Commands *****************************/
  const char*
  RN2483::read(int *len)
  {
@@ -334,7 +246,266 @@ RN2483::available(void)
      return msgStr.c_str();
  }
 
-/****************************************************************************/
+ RN2483::RN2483(void)
+ {
+    comm = NULL;
+    port = L_DEFAULT_PORT;
+    rx.init();
+    tx.init();
+ }
+
+void RN2483::begin(long speed, Uart *serial) {
+    this->comm = serial;
+    comm->begin(speed);
+
+
+}
+ 
+bool
+RN2483::available(void)
+{
+
+     while (comm->available()) {
+         // get the new byte
+         char inChar = (char)comm->read();
+         handleRxData(inChar);
+         
+         if (rxDataReady()) {
+             return true;
+         }
+     }
+     return false;
+ }
+const char* RN2483::getLastAnswer(void)
+{
+    return (const char *)tx.data;
+}
+
+
+errE RN2483::sendRawCmd(String stream)
+{
+    uint8_t ret = sendCmd(stream);
+    
+    switch (ret) {       
+    case ASW_OK:
+    case ASW_STR:
+    case ASW_JOIN_ACCEPTED:
+    case ASW_RADIO_TX_OK:
+    case ASW_TX_OK:
+        return RN_OK;
+        
+    case ASW_RADIO_ERR:        
+    case ASW_INVALID_PARAM:
+    case ASW_NOT_JOINED:
+    case ASW__NO_FREE_CHAN:
+    case ASW_SILENT:
+    case ASW_REJOIN_NEEDED:
+    case ASW_BUSY:
+    case ASW_PAUSED:
+    case ASW_INVALID_LEN:
+    case ASW_KEYS_NOT_INIT:
+    case ASW_JOIN_DENIED:
+    case ASW_ERR:
+    default:
+        return RN_ERR;
+    }    
+}
+
+const char * RN2483::sendRawCmdAndAnswer(String stream)
+{
+    if (ASW_STR == sendCmd(stream)) {
+        return getLastAnswer();
+    }
+    return "ERR";
+}
+
+
+
+
+/*****************************   MAC Commands *******************************/
+
+errE 
+RN2483::macSetDevEUICmd(String stream)
+{
+    String msgStr(MAC_SET_DEV_EUI);
+    msgStr.concat(stream);
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    } 
+}
+
+errE
+RN2483::macSetDevAddrCmd(String stream)
+{
+    String msgStr(MAC_SET_DEV_ADDR);
+    msgStr.concat(stream);
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+        } else {
+        return RN_ERR;
+    }
+}
+
+errE
+RN2483::macSetAppEUICmd(String stream)
+{
+    String msgStr(MAC_SET_APP_EUI);
+    msgStr.concat(stream);
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }
+}
+  
+errE
+RN2483::macSetNtwSessKeyCmd(String stream)
+{
+    String msgStr(MAC_SET_NTW_SESS_KEY);
+    msgStr.concat(stream);
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }
+}
+
+errE
+RN2483::macSetAppSessKeyCmd(String stream)
+{
+    String msgStr(MAC_SET_APP_SESS_KEY);
+    msgStr.concat(stream);
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }    
+}
+
+errE
+RN2483::macSetAppKeyCmd(String stream)
+{
+    String msgStr(MAC_SET_APP_KEY);
+    msgStr.concat(stream);
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }
+}
+  
+
+const char*
+RN2483::getMacAppEUI(void)
+{
+   if (ASW_STR == sendCmd(MAC_GET_APP_EUI)) {
+        return getLastAnswer();
+    }
+    return "ERR";
+}
+
+const char* RN2483::macGetStatus(void)
+{
+    // send request
+    if (ASW_STR == sendCmd(MAC_GET_STATUS)) {
+        return getLastAnswer();
+    }
+    return "ERR";
+}
+
+const char* RN2483::macPause(void)
+{
+    // send request
+    if (ASW_STR == sendCmd(MAC_PAUSE_CMD)) {
+        return getLastAnswer();
+    }
+    return "ERR";
+}
+
+errE RN2483::macResetCmd(bandE band)
+{
+    String msgStr(MAC_RESET_CMD);
+    msgStr.concat(((band == BAND_868) ? "868" : "433"));
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }      
+}
+
+
+errE RN2483::macTxCmd(String stream, int16_t portId, txModeE type)
+{
+    String msgStr(MAC_TX_CMD);
+    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
+    String dataStr;
+    
+    msgStr.concat((type == TX_NOACK) ? "uncnf " : "cnf ");
+    msgStr.concat(cmdPort);
+    msgStr.concat(" ");
+    dataToHexString(stream.begin(), stream.end(), dataStr);
+    msgStr.concat(dataStr);
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }
+}
+
+errE RN2483::macTxCmd(char *data, int16_t len, int16_t portId, txModeE type)
+{
+    String msgStr(MAC_TX_CMD);
+    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
+    String dataStr;
+    
+    msgStr.concat((type == TX_NOACK) ? "uncnf " : "cnf ");
+    msgStr.concat(cmdPort);
+    msgStr.concat(" ");
+    dataToHexString(data, data+len, dataStr);
+    msgStr.concat(dataStr);
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }
+}
+
+
+errE RN2483::macJoinCmd(joinModeE mode)
+{
+    String msgStr(MAC_JOIN_CMD);
+    msgStr.concat(((mode == OTAA) ? JOIN_OTA_MODE : JOIN_ABP_MODE));
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    } 
+}
+
+errE RN2483::macSetDataRate(uint8_t dataRate)
+{
+    String msgStr(MAC_SET_DATARATE);
+    String dataStr;
+    
+    msgStr.concat(dataRate);
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }    
+}
+
+
 /*****************************   SYS Commands *******************************/
 
 errE RN2483::sysSleepCmd (uint32_t msec)
@@ -344,32 +515,42 @@ errE RN2483::sysSleepCmd (uint32_t msec)
     
     msgStr.concat(msec);
 
-    if (sendCmd(msgStr) == ASW_TX_OK) {
+    if (sendCmd(msgStr) == ASW_OK) {
         return RN_OK;
-    } else {
+        } else {
         return RN_ERR;
     }
 }
 
-const char* RN2483::getVersion(void)
+const char* RN2483::sysGetVersion(void)
 {
     // send request
     if (ASW_STR == sendCmd(SYS_GET_VER)) {
         return getLastAnswer();
     }
-    return "ERR";    
+    return "ERR";
 }
 
-const char* RN2483::getMacStatus(void)
+const char* RN2483::sysReset(void)
 {
     // send request
-    if (ASW_STR == sendCmd(MAC_GET_STATUS)) {
+    if (ASW_STR == sendCmd(SYS_RESET)) {
         return getLastAnswer();
     }
-    return "ERR";         
+    return "ERR";
 }
 
-char RN2483::getUserEEprom(char address){
+const char* RN2483::sysFactoryReset(void)
+{
+    // send request
+    if (ASW_STR == sendCmd(SYS_FACTORY_RESET)) {
+        return getLastAnswer();
+    }
+    return "ERR";
+}
+
+
+char RN2483::sysGetUserEEprom(char address){
     int ret;
     unsigned char addPos = strlen(SYS_GET_NVM);
     char bufferT[GET_NVM_LEN];
@@ -397,7 +578,7 @@ char RN2483::getUserEEprom(char address){
     return ret;
 }
 
-bool RN2483::setUserEEprom(char address, char data){
+bool RN2483::sysSetUserEEprom(char address, char data){
     unsigned char addPos = strlen(SYS_SET_NVM);
     char bufferT[SET_NVM_LEN];
 
@@ -410,203 +591,34 @@ bool RN2483::setUserEEprom(char address, char data){
     itoa(data>>4, &bufferT[addPos+3], 16);
     itoa(data&0x0F, &bufferT[addPos+4], 16);
     // send request
-   // rawData(bufferT);
+    // rawData(bufferT);
     return sendCmd(bufferT);
     // remain till buffer is completed
-   // while (!hasAnswer()) {
+    // while (!hasAnswer()) {
     //    delay(10);
     //};
 
     //return checkAnswer(getLastAnswer());
 }
 
-int RN2483::getPower(void) {
-    int ret = 0;
-    const char *answ;
-    
+const char * RN2483::sysGetVdd(void) 
+{    
     if (ASW_STR == sendCmd(SYS_GET_VDD)) {
-        answ = getLastAnswer();
-        sscanf(answ, "%4d", &ret);
-    }
-
-    return ret;
+        return getLastAnswer();
+    } else
+        return "ERR";
 }
 
-const char * RN2483::getHwEUI(void)
-{        
+const char * RN2483::sysGetHwEUI(void)
+{
     if (ASW_STR == sendCmd(SYS_GET_HWEUI)) {
         return getLastAnswer();
     }
     return "ERR";
 }
 
+/*****************************  Radio Commands ******************************/
 
-
-/*****************************   MAC Commands *******************************/
-
-errE 
-RN2483::macSetDevEUICmd(String stream)
-{
-    String msgStr(MAC_SET_DEV_EUI);
-    msgStr.concat(stream);
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    } 
-}
-
-errE
-RN2483::macSetDevAddrCmd(String stream)
-{
-    String msgStr(MAC_SET_DEV_ADDR);
-    msgStr.concat(stream);
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-        } else {
-        return RN_ERR;
-    }
-}
-
-errE
-RN2483::macSetAppEUICmd(String stream)
-{
-    String msgStr(MAC_SET_APP_EUI);
-    msgStr.concat(stream);
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }
-}
-  
-errE
-RN2483::macSetNtwSessKeyCmd(String stream)
-{
-    String msgStr(MAC_SET_NTW_SESS_KEY);
-    msgStr.concat(stream);
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }
-}
-
-errE
-RN2483::macSetAppSessKeyCmd(String stream)
-{
-    String msgStr(MAC_SET_APP_SESS_KEY);
-    msgStr.concat(stream);
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }    
-}
-
-errE
-RN2483::macSetAppKeyCmd(String stream)
-{
-    String msgStr(MAC_SET_APP_KEY);
-    msgStr.concat(stream);
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }
-}
-  
-
-const char*
-RN2483::getMacAppEUI(void)
-{
-   if (ASW_STR == sendCmd(MAC_GET_APP_EUI)) {
-        return getLastAnswer();
-    }
-    return "ERR";
-}
-
-
-errE RN2483::macResetCmd(bandE band)
-{
-    String msgStr(MAC_RESET_CMD);
-    msgStr.concat(((band == BAND_868) ? "868" : "433"));
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }      
-}
-
-
-errE RN2483::macTxCmd(String stream, int16_t portId, txModeE type)
-{
-    String msgStr(MAC_TX_CMD);
-    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
-    String dataStr;
-    
-    msgStr.concat((type == TX_NOACK) ? "uncnf " : "cnf ");
-    msgStr.concat(cmdPort);
-    msgStr.concat(" ");
-    dataToHexString(stream.begin(), stream.end(), dataStr);
-    msgStr.concat(dataStr);
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }
-}
-
-errE RN2483::macTxCmd(char *data, int16_t len, int16_t portId, txModeE type)
-{
-    String msgStr(MAC_TX_CMD);
-    uint16_t cmdPort = ((portId == L_CONFIGURED_PORT) ? port : portId);
-    String dataStr;
-    
-    msgStr.concat((type == TX_NOACK) ? "uncnf " : "cnf ");
-    msgStr.concat(cmdPort);
-    msgStr.concat(" ");
-    dataToHexString(data, data+len, dataStr);
-    msgStr.concat(dataStr);
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }
-}
-
-
-errE RN2483::macJoinCmd(joinModeE mode)
-{
-    String msgStr(MAC_JOIN_CMD);
-    msgStr.concat(((mode == OTAA) ? JOIN_OTA_MODE : JOIN_ABP_MODE));
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    } 
-}
-
-errE RN2483::macSetDataRate(uint8_t dataRate)
-{
-    String msgStr(MAC_SET_DATARATE);
-    String dataStr;
-    
-    msgStr.concat(dataRate);
-
-    if (sendCmd(msgStr) == ASW_TX_OK) {
-        return RN_OK;
-    } else {
-        return RN_ERR;
-    }    
-}
 
 errE RN2483::radioSetSync(uint8_t sync)
 {
@@ -615,7 +627,7 @@ errE RN2483::radioSetSync(uint8_t sync)
     
     msgStr.concat(sync);
 
-    if (sendCmd(msgStr) == ASW_TX_OK) {
+    if (sendCmd(msgStr) == ASW_OK) {
         return RN_OK;
         } else {
         return RN_ERR;
@@ -628,7 +640,7 @@ errE RN2483::radioSetPwr(uint8_t pwr)
     
     msgStr.concat(pwr);
 
-    if (sendCmd(msgStr) == ASW_TX_OK) {
+    if (sendCmd(msgStr) == ASW_OK) {
         return RN_OK;
         } else {
         return RN_ERR;
@@ -646,5 +658,33 @@ RN2483::radioGetPwr(void)
 }
 
 
+
+radioModeE RN2483::radioGetMode(void)
+{
+    const char *answ;
+    if (ASW_STR == sendCmd(RADIO_GET_MODE)) {
+        answ = getLastAnswer();
+        if (*answ =='l') {
+            return LoRa;
+            } else if (*answ =='f') {
+            return FSK;
+        }
+    }
+
+    return UnknownRadio;
+}
+
+errE RN2483::radioSetMode (radioModeE radioMode)
+{
+    String msgStr(RADIO_SET_MODE);
+    msgStr.concat(((radioMode == LoRa) ? "lora" : "fsk"));
+
+    if (sendCmd(msgStr) == ASW_OK) {
+        return RN_OK;
+    } else {
+        return RN_ERR;
+    }
+
+}
     
 RN2483 lora;

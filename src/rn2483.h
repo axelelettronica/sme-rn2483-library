@@ -8,6 +8,27 @@
 const int16_t  L_DEFAULT_PORT = 1;
 const int16_t  L_CONFIGURED_PORT = 0xFFFF;
 
+typedef enum  answerCodes_t_  {
+    ASW_OK,
+    ASW_INVALID_PARAM,
+    ASW_NOT_JOINED,
+    ASW__NO_FREE_CHAN,
+    ASW_SILENT,
+    ASW_REJOIN_NEEDED,
+    ASW_BUSY,
+    ASW_PAUSED,
+    ASW_INVALID_LEN,
+    ASW_KEYS_NOT_INIT,
+    ASW_JOIN_DENIED,
+    ASW_JOIN_ACCEPTED,
+    ASW_RADIO_ERR,
+    ASW_RADIO_TX_OK,
+    ASW_TX_OK,
+    ASW_ERR,
+    ASW_STR,
+    ASW_CODES_NUM
+} answerCodes_t;
+
 typedef enum {
     UnknownRadio,
     LoRa,
@@ -74,79 +95,76 @@ private:
     //uint8_t cur_dir;
 private:
 
-    void rawData(String stream);
-    boolean hasAnswer(void);
     void dataToHexString(const char*const beginIt, const char*const endIt, String& str);
+    void rawData(String stream);
+    uint8_t checkAnswer(const char *answer);
+    errE sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type);
+    // boolean hasAnswer(void);
     uint8_t sendCmd(String stream);
+    uint8_t waitAnswer(void);    
+    char* getRxData(void);
+    void handleRxData(uint8_t inChar);
+    bool rxDataReady(void);
+ 
+    #define SEND_CMN_CMD(msgStr) {return ((sendCmd(msgStr) == ASW_OK)? RN_OK : RN_ERR);} 
+    
 public:
 
-    RN2483(){/*initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;*/};
+    RN2483(); //: comm(NULL) {/*initField.hwEUI=0;initField.sw=0;initField.radioMode=UnknownRadio;*/};
     void begin(long speed = 57600, Uart *serial=&iotAntenna);
     bool available();
     const char* read(int *len);
     const char* read(void);
-    
-    void handleRxData(uint8_t inChar);
-    char* getRxData(void);
-    bool rxDataReady(void);
-    uint8_t waitAnswer(void);    
+       
     const char* getLastAnswer(void);    
-    uint8_t sendRawCmd(String stream);
-    //uint8_t checkAnswer(const char *answer);
-    
+    errE sendRawCmd(String stream);
+    const char *sendRawCmdAndAnswer(String stream);
 
-    errE sendData(char *data, uint16_t dataLen, int16_t portId, txModeE type);
-    uint8_t checkAnswer(const char *answer);
 
     /******* MAC Commands *******/
-    errE macResetCmd(bandE band = BAND_868); 
-    errE macJoinCmd(joinModeE  mode = OTAA); 
-
-    errE macTxCmd(String stream, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
-    errE macTxCmd(char *data, int16_t len, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
-
-    inline void macSave(void) {sendCmd(MAC_SAVE_CMD);};
-    inline void macPause(void) {sendCmd(MAC_PAUSE_CMD);};
-    inline void macResume(void) {sendCmd(MAC_RESUME_CMD);};
     
-    const char* getMacAppEUI(void);
-
-    errE macSetDevAddrCmd(String stream);    
+    errE macSetDevAddrCmd(String stream);
     errE macSetDevEUICmd(String stream);
-    errE macSetAppEUICmd(String stream);    
+    errE macSetAppEUICmd(String stream);
     errE macSetNtwSessKeyCmd(String stream);
     errE macSetAppSessKeyCmd(String stream);
     errE macSetAppKeyCmd(String stream);
-    errE macSetDataRate(uint8_t dataRate); // 0..7    
-    // Setting the Adaptative Data Rate
-    inline void macSetAdrOn(void) {sendCmd(MAC_SET_ADR_ON_CMD);};    
-    inline void macSetAdrOff(void) {sendCmd(MAC_SET_ADR_OFF_CMD);};
+    
+    const char* macGetStatus(void);      
+    const char* getMacAppEUI(void);
+
+    errE macResetCmd(bandE band = BAND_868); 
+    errE macTxCmd(String stream, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
+    errE macTxCmd(char *data, int16_t len, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);
+    errE macJoinCmd(joinModeE  mode = OTAA); 
+    errE macSetDataRate(uint8_t dataRate); // 0..7 
+        
+    inline errE macSave(void) {SEND_CMN_CMD(MAC_SAVE_CMD);};
+    const char * macPause(void);
+    inline errE macResume(void) {SEND_CMN_CMD(MAC_RESUME_CMD);};
+
+
+   
+    // Setting the Adaptive Data Rate
+    inline errE macSetAdrOn(void) {SEND_CMN_CMD(MAC_SET_ADR_ON_CMD);};    
+    inline errE macSetAdrOff(void) {SEND_CMN_CMD(MAC_SET_ADR_OFF_CMD);};
     // Setting the Automatic Reply
-    inline void macSetArOn(void) {sendCmd(MAC_SET_ADR_ON_CMD);};    
-    inline void macSetArOff(void) {sendCmd(MAC_SET_ADR_OFF_CMD);};   
-    const char* getMacStatus(void);
+    inline errE macSetArOn(void) {SEND_CMN_CMD(MAC_SET_ADR_ON_CMD);};    
+    inline errE macSetArOff(void) {SEND_CMN_CMD(MAC_SET_ADR_OFF_CMD);};   
+
+    
     
     /******* SYS Commands *******/
+    
     errE sysSleepCmd(uint32_t msec);
-    errE sysSetSleep(char *time_str);
-    errE sysWakeUp(void);
     
-    /*
-     * Resets and restarts the RN2483 module.
-     */
-    inline void reset(void) {sendCmd(SYS_RESET);};
-    
+    //errE sysSetSleep(String stream);
+ 
     /*
      * Returns the information on hardware platform,
      * firmware version, release date
      */
-    const char* getVersion(void);
-
-    /*
-     * Resets the RN2483 module’s configuration data and user EEPROM
-     * to factory default values and restarts the RN2483 module.
-     */
-    inline void factoryReset(void){ sendCmd(SYS_FACTORY_RESET);};
+    const char* sysGetVersion(void);
 
     /*
      * Returns data from the requested user EEPROM <address>.
@@ -158,7 +176,7 @@ public:
      * Response: 00 – FF if the address is valid
      *          invalid_param if the address is not valid
      */
-    char getUserEEprom(char address);
+    char sysGetUserEEprom(char address);
 
     /*
      * Write data to the requested user EEPROM <address>.
@@ -171,15 +189,16 @@ public:
      * Response: true if the parameters (address and data) are valid
      *           false if the parameters (address and data) are not valid
      */
-    bool setUserEEprom(char address, char data);
+    bool sysSetUserEEprom(char address, char data);
+
 
     /*
      * This command informs the RN2483 module to do an ADC conversion on the VDD.
      * The measurement is converted and returned as a voltage (mV).
      *
-     * Response: 0–3600 (decimal value from 0 to 3600)
+     * Response: 0–3600 (string value from 0 to 3600)
      */
-    int getPower(void);
+    const char * sysGetVdd(void);
 
     /*
      * This command reads the preprogrammed EUI node address from the RN2483 module.
@@ -188,12 +207,33 @@ public:
      * Response: hexadecimal number representing the preprogrammed EUI node address
      *
      */
-    //const char* 
-    const char * getHwEUI(void);
+    const char * sysGetHwEUI(void);
+        
+            
+    //errE sysWakeUp(void);
+    
+    /*
+     * Resets and restarts the RN2483 module.
+     */
+    const char * sysReset(void);
+    
+
+    /*
+     * Resets the RN2483 module’s configuration data and user EEPROM
+     * to factory default values and restarts the RN2483 module.
+     */
+    const char * sysFactoryReset(void);
 
 
-    //RADIO command
 
+
+
+    /******* RADIO Commands *******/
+
+    
+    errE radioSetSync(uint8_t sync);
+    errE radioSetPwr(uint8_t pwr);    
+    const char * radioGetPwr();    
     /*
      * This command reads back the current mode of operation of the module.
      *      Default: lora
@@ -202,7 +242,7 @@ public:
      *              either lora or fsk.
      *
      */
-    radioModeE getRadioMode();
+    radioModeE radioGetMode();
 
     /*
      *
@@ -211,18 +251,13 @@ public:
      *      variables or registers.
      * FSK mode also allows GFSK transmissions when data shaping is enabled.
      * 
-     *  <mode>: string representing the modulation method, 
-     *              either lora or fsk.
+     *  <mode>:     LoRa,     FSK 
      *
      *  Response: true if the modulation is valid
      *            false if the modulation is not valid
      */
-    bool setRadioMode (char *radioMode);
-    
-    errE radioSetSync(uint8_t sync);
-    
-    errE radioSetPwr(uint8_t pwr);
-    const char * radioGetPwr();
+
+     errE radioSetMode (radioModeE radioMode);
 };
 
 // external variable used by the sketches
