@@ -96,6 +96,28 @@ inline bool LORA_NTW_JOINED( uint32_t status)
 {
     return (status & 0x1);
 }
+void hexStringToLong(const char *const beginIt, const char len, uint32_t *val)
+{
+    volatile char *p = (char *) beginIt;
+    volatile char *it = (char *) p;
+    volatile uint32_t tmpval = 0;
+    volatile int i = 0;
+    *val = 0;
+    
+    for(i = 0; i < len; ++i) {
+       it = p+i; 
+       if (*it >='0' && (*it <= '9')) {
+           tmpval = (*it) - '0';
+       } else if (*it >='A' && (*it <= 'F')) {
+           tmpval = (*it) - 'A' + 10;
+       } else if (*it >='a' && (*it <= 'f')) {
+           tmpval = (*it) - 'a' + 10;
+       } else
+           tmpval = 0;
+           
+       *val |= (tmpval << ((len-i-1)*4));
+    }
+}
 
 // Convert binary data sequence [beginIt, endIt) to hexadecimal string
 void
@@ -445,9 +467,7 @@ uint32_t RN2483::macGetStatus(void)
     if (s[0] == 'E') {
         return status;
     }
-    
-    status = (s[0] << 24) | (s[1] << 16) | (s[2] << 8) | s[3]; 
-
+    hexStringToLong((char *)s, 8, &status); 
     return status;
 }
 

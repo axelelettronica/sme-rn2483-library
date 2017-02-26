@@ -15,6 +15,7 @@ The RN2483 module is suitable for simple long range sensor applications with ext
 
 [* Microchip RN2483 Home Page *](http://www.microchip.com/wwwproducts/en/RN2483)
 
+In particular refer to the 'RN2483 LoRa® Technology Module Command Reference User’s Guide'
 
 It was principally designed to work with the SmartEverything Lion board, but could
 be easily adapted and used on every Arduino and Arduino Certified boards.
@@ -29,6 +30,11 @@ Provided by <development@axelelettronica.it>.
 
 ## Releases  
 ---  
+#### v1.2.0 Third Release  
+* **Maintenance Release:**  
+    Added more configuration APIs.
+    Cleaned library structure
+    
 #### v1.1.0 Second Release  
 * **Maintenance Release:**  
     Added more Examples.  
