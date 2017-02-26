@@ -1,5 +1,25 @@
-#include <Arduino.h>
-#include <Uart.h>
+/* SmartEverything RN2483 Library
+ * Copyright (C) 2017 by IOTEAM
+ *
+ * This file is part of the SmartEverything Arduino RN2483 Library
+ *
+ * This Library is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with the Arduino SmartEverything RN2483 Library.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ *  Design:      seve@ioteam.it
+ */
+
 #include "../rn2483.h"
 #include "rn2483Model.h"
 
