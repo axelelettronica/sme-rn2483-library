@@ -82,6 +82,7 @@ typedef enum {
 #define TX      1
 #define RX      0
 
+#define MAC_JOINED(status)  (status & 0x1)
 
 class rnMsgT {
 public:
@@ -142,8 +143,9 @@ public:
     errE macSetAppSessKeyCmd(String stream);
     errE macSetAppKeyCmd(String stream);
     
-    const char* macGetStatus(void);      
+    const char* macGetStatusStr(void);      
     const char* getMacAppEUI(void);
+    uint32_t macGetStatus(void);
 
     errE macResetCmd(bandE band = BAND_868); 
     errE macTxCmd(String stream, int16_t portId = L_CONFIGURED_PORT, txModeE type = TX_NOACK);

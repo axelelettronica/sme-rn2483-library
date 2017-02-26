@@ -429,13 +429,26 @@ RN2483::getMacAppEUI(void)
     return "ERR";
 }
 
-const char* RN2483::macGetStatus(void)
+const char* RN2483::macGetStatusStr(void)
 {
     // send request
     if (ASW_STR == sendCmd(MAC_GET_STATUS)) {
         return getLastAnswer();
     }
     return "ERR";
+}
+
+uint32_t RN2483::macGetStatus(void)
+{
+    uint32_t status = 0;
+    const char *s = macGetStatusStr();
+    if (s[0] == 'E') {
+        return status;
+    }
+    
+    status = (s[0] << 24) | (s[1] << 16) | (s[2] << 8) | s[3]; 
+
+    return status;
 }
 
 const char* RN2483::macPause(void)

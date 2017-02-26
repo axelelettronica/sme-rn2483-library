@@ -47,6 +47,7 @@ macSetAdrOff         KEYWORD2
 macSetArOn           KEYWORD2
 macSetArOff          KEYWORD2
 getMacStatus         KEYWORD2
+getMacStatusStr      KEYWORD2
 radioSetMode         KEYWORD2
 radioGetMode         KEYWORD2
 radioSetSync         KEYWORD2
