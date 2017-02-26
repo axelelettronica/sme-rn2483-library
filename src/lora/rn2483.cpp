@@ -331,10 +331,12 @@ errE RN2483::sendRawCmd(String stream)
 
 const char * RN2483::sendRawCmdAndAnswer(String stream)
 {
-    if (ASW_STR == sendCmd(stream)) {
-        return getLastAnswer();
-    }
-    return "ERR";
+    //if (ASW_STR == sendCmd(stream)) {
+    //    return getLastAnswer();
+    //}
+    //return "ERR";
+    sendCmd(stream);
+    return getLastAnswer();
 }
 
 
