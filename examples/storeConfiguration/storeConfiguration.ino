@@ -110,26 +110,26 @@ void loop() {
     Serial.print("HW EUI          : ");
     Serial.println(lora.sysGetHwEUI());
         
-    if (otaConfig) {
-        Serial.print("MAC DEV-EUI     : ");
-        Serial.println(lora.sendRawCmdAndAnswer("mac get deveui"));
-        Serial.print("Using Hw Eui as Dev eui: ...");    
-        lora.macSetDevEUICmd(lora.sysGetHwEUI());
-        s = lora.sendRawCmdAndAnswer("mac get deveui");
-        Serial.print("NEW MAC DEV-EUI : ");
-        Serial.println(s);
-    
-        // Setting App EUI
-        lora.macSetAppEUICmd(APP_EUI);
-        Serial.print("MAC APP-EUI     : ");
-        Serial.println(lora.sendRawCmdAndAnswer("mac get appeui"));
 
-        // Setting App Key
-        lora.macSetAppKeyCmd(APP_KEY);
-        Serial.print("MAC APP-KEY     : ");
-        Serial.println(APP_KEY);
+    Serial.print("MAC DEV-EUI     : ");
+    Serial.println(lora.sendRawCmdAndAnswer("mac get deveui"));
+    Serial.print("Using Hw Eui as Dev eui: ...");    
+    lora.macSetDevEUICmd(lora.sysGetHwEUI());
+    s = lora.sendRawCmdAndAnswer("mac get deveui");
+    Serial.print("NEW MAC DEV-EUI : ");
+    Serial.println(s);
 
-    } else {    
+    // Setting App EUI
+    lora.macSetAppEUICmd(APP_EUI);
+    Serial.print("MAC APP-EUI     : ");
+    Serial.println(lora.sendRawCmdAndAnswer("mac get appeui"));
+
+    // Setting App Key
+    lora.macSetAppKeyCmd(APP_KEY);
+    Serial.print("MAC APP-KEY     : ");
+    Serial.println(APP_KEY);
+
+    if (!otaConfig) {   
 
         // Setting Dev Address
         lora.macSetDevAddrCmd(DEV_ADDR);

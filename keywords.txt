@@ -10,6 +10,7 @@ lora	     KEYWORD3
 # Datatypes (KEYWORD1)
 #######################################
 errE                 KEYWORD1
+txModeE              KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################

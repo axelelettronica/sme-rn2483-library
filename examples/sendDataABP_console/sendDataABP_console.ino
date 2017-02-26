@@ -1,6 +1,22 @@
+/*
+    SmarteEveryting Lion RN2483 Library - sendDataABP_console
+
+    This example shows how to configure and send messages after a ABP Join.
+    Please consider the storeConfiguration example can be uset to store
+    the required keys and skip the configuration part in curent example.
+ 
+    created 25 Feb 2017
+    by Seve (seve@ioteam.it)
+
+    This example is in the public domain
+    https://github.com/axelelettronica/sme-rn2483-library
+
+    More information on RN2483 available here:
+    http://www.microchip.com/wwwproducts/en/RN2483
+    
+ */
 #include <Arduino.h>
 #include <rn2483.h>
-
 
 /*
  * INPUT DATA (for ABP)
@@ -19,114 +35,138 @@
  *  these 6 parameters before issuing a "mac join abp"
  *
  */
-int len = 0;
 
 void setup() {
 
-    bool err = false;
-    loraDbg = true;
-    
-    SerialUSB.begin(115200);
+    errE err;
+    loraDbg = false;         // Set to 'true' to enable RN2483 TX/RX traces
+    bool storeConfig = true; // Set to 'false' if persistend config already in place    
+    Serial.begin(115200);
 
     lora.begin();
     delay(100);
     
     // Waiting for the USB serial connection
-    while (!SerialUSB) {
+    while (!Serial) {
         ;
     }
 
-    // first time get from Hw
-    lora.getVersion();
+    Serial.print("FW Version :");
+    Serial.println(lora.sysGetVersion());
+
+    /* NOTICE: Current Keys configuration can be skipped if already stored
+     *          with the store config Example
+     */
+    if (storeConfig) {
+         // Write HwEUI
+        Serial.println("Writing DEV EUI ...");
+        lora.macSetDevEUICmd("0004A30B001A2A9E");
+
+        if (err != RN_OK) {
+            Serial.println("\nFailed writing Dev EUI");
+        }
+        
+        Serial.println("Writing APP EUI ...");
+        err = lora.macSetAppEUICmd("0000000000000001");
+        if (err != RN_OK) {
+            Serial.println("\nFailed writing APP EUI");
+        }
+        Serial.println("Writing Network Session Key ...");
+        err = lora.macSetNtwSessKeyCmd("2b7e151628aed2a6abf7158809cf4f3c");
+        if (err != RN_OK) {
+            Serial.println("\nFailed writing Network Session Key");
+        }
+        
+        Serial.println("Writing Application Session Key ...");
+        err = lora.macSetAppSessKeyCmd("2b7e151628aed2a6abf7158809cf4f3c");
+        if (err != RN_OK) {
+            Serial.println("\nFailed writing APP Session Key");
+        }
+        
+        Serial.println("Writing Application Key ...");
+        lora.macSetAppKeyCmd("ffffffffffffffffffffffffffff0000");
+        if (err != RN_OK) {
+            Serial.println("\nFailed writing raw APP Key"); 
+        }
+        
+        Serial.println("Writing Device Address ...");
+        err = lora.macSetDevAddrCmd("001a2a9e");
+        if (err != RN_OK) {
+            Serial.println("\nFailed writing Dev Address");
+        }
+        
+        Serial.println("Setting ADR ON ...");
+        err = lora.macSetAdrOn();
+        if (err != RN_OK) {
+            Serial.println("\nFailed setting ADR");
+        }
+    }
+    /* NOTICE End: Key Configuration */
     
-    SerialUSB.print("FW Version :");
-    SerialUSB.println(lora.getVersion());
-
-     // Write HwEUI
-    SerialUSB.println("Writing DEV EUI ...");
-    //err = lora.macSetDevEUICmd("0004A30B001A2A9E");
-    err = lora.sendRawCmd("mac set deveui ffffffffffff0000");
-    if (err) {
-        SerialUSB.println("\nFailed writing Dev EUI");
-    }
-
-    
-    SerialUSB.println("Writing APP EUI ...");
-        err = lora.sendRawCmd("mac set appeui ffffffffffff0000");
-    //err = lora.macSetAppEUICmd("0000000000000001");
-    if (err) {
-        SerialUSB.println("\nFailed writing APP EUI");
-    }
-
-    err = lora.macSetNtwSessKeyCmd("2b7e151628aed2a6abf7158809cf4f3c");
-    if (err) {
-        SerialUSB.println("\nFailed writing Network Session Key");
-    }
-
-    err = lora.macSetAppSessKeyCmd("2b7e151628aed2a6abf7158809cf4f3c");
-    if (err) {
-        SerialUSB.println("\nFailed writing APP Session Key");
-    }
-
-    lora.macSetAppKeyCmd("ffffffffffffffffffffffffffff0000");
-
-    if (err) {
-        SerialUSB.println("\nFailed writing raw APP Key"); 
-    }
-    //err = lora.sendRawCmd("mac set devaddr 001a2a9e");
-    //err = lora.sendRawCmd("mac set devaddr 001A2A9E");
-    //err = lora.sendRawCmd("mac set devaddr 00000000");
-    err = lora.sendRawCmd("mac set devaddr ffff0001");
-    if (err) {
-        SerialUSB.println("\nFailed writing Dev Address");
-    }
-
-    err = lora.sendRawCmd("mac set ar on");
-    if (err) {
-        SerialUSB.println("\nFailed settin automatic reply");
+    Serial.println("Setting Automatic Reply ON ...");
+    err = lora.macSetArOn();
+    if (err != RN_OK) {
+        Serial.println("\nFailed setting automatic reply");
     }
     
-    while (lora.macJoinCmd(ABP) /* lora.sendRawCmd("mac join abp")*/) {
-        SerialUSB.println("\nABP JOIN FAILED ");
+    Serial.println("Setting Trasmission Power to Max ...");
+    lora.macPause();
+    err = lora.radioSetPwr(14);
+    if (err != RN_OK) {
+        Serial.println("\nFailed Setting the power to max power");
+    }
+    lora.macResume();
+    
+    while (lora.macJoinCmd(ABP)) {
+        Serial.println("\nABP JOIN FAILED ");
         delay(5000);
     }     
-    SerialUSB.println("\nABP Network JOINED! ");
+    Serial.println("\nABP Network JOINED! ");
+
 }
 
 uint8_t buff_size = 100;
 char buff[100] = {};
 uint8_t i = 0;
 char c;
+
 void loop() {
     static int loop_cnt = 0;
-    
-    if (SerialUSB.available()) {
-      c = SerialUSB.read();    
-      SerialUSB.write(c); 
+    static int tx_cnt = 0;
+    if (Serial.available()) {
+      c = Serial.read();    
+      Serial.write(c); 
       buff[i++] = c;
       if (c == '\n') {
-          lora.sendRawCmd(buff);
+          Serial.print(lora.sendRawCmdAndAnswer(buff));
           i = 0;
           memset(buff, 0, sizeof(buff));
       }
     }
 
     if (lora.available()) {
-        //String data received from Lora Module;
-        SerialUSB.print("\nRx> ");  
-        SerialUSB.print(lora.read(&len));
+        //Unexpected data received from Lora Module;
+        Serial.print("\nRx> ");  
+        Serial.print(lora.read());
     }
 
     if (!(loop_cnt % 5000)) {
-    // Sending String to the Lora Module towards the gateway
-       lora.sendRawCmd("mac pause");
-       delay(10);
-       lora.sendRawCmd("mac resume");
-       lora.macTxCmd("0123", 1, TX_ACK);
-       //lora.macTxCmd("0123");
-       //lora.macTxCmd("0123", 1);
-    } else {
-      //lora.macTxCmd("0");   
+       tx_cnt++;
+       
+       // Sending different data at any cycle
+       if (tx_cnt == 1) {
+           Serial.println("Sending Confirmed String ...");
+           lora.macTxCmd(String("0123"), 1, TX_ACK); // Confirmed tx 
+       } else if (tx_cnt == 2) {
+           Serial.println("Sending Unconfirmed String ...");
+           lora.macTxCmd("456");          // Unconfirmed tx String
+       } else {
+           const char tx_size = 3;
+           char tx[tx_size] = {0x37,0x38,0x39};
+           Serial.println("Sending Unconfirmed Buffer ...");
+           lora.macTxCmd(tx, tx_size);   // Unconfirmed tx buffer
+           tx_cnt = 0;
+       }
     }
     loop_cnt++;
     delay(10);
