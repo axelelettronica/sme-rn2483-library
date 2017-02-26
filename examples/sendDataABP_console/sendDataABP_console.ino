@@ -116,6 +116,7 @@ void setup() {
         Serial.println("\nFailed Setting the power to max power");
     }
     lora.macResume();
+    delay(1000);  
     
     while (lora.macJoinCmd(ABP)) {
         Serial.println("\nABP JOIN FAILED ");
