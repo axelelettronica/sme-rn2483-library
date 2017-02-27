@@ -37,6 +37,8 @@ void setup() {
 void loop() {
     errE ok;
     const char *s;
+    uint32_t state;
+    char answer;
     
     // get SwVersion
     Serial.println("/***********************************************************/");
@@ -62,17 +64,19 @@ void loop() {
     Serial.println(s);
     s = lora.sendRawCmdAndAnswer("mac get devaddr");
     Serial.print("MAC DEV-ADDR    : ");
-    Serial.println(s);
+    Serial.println(s);    
 
-    s = lora.macGetStatus();
-    Serial.print("MAC Status Mask : ");
-    Serial.println(s);       
     s = lora.sendRawCmdAndAnswer("mac get adr");
     Serial.print("MAC Adaptive DR : ");
     Serial.println(s);
+
     s = lora.sendRawCmdAndAnswer("mac get ar");
     Serial.print("MAC Auto Reply  : ");
     Serial.println(s);
+   
+    state = lora.macGetStatus();
+    Serial.print("MAC Status Mask : ");
+    Serial.println(state, HEX);  
     
     Serial.println("\n ---- Radio --- ");
     Serial.print("Radio Mode      : ");
@@ -88,49 +92,24 @@ void loop() {
    
     Serial.println("\n/***********************************************************/\n");
     // Read the EEprom
-    Serial.print("get EEProm (0x00) : ");
-    Serial.println(lora.sysGetUserEEprom(0), HEX);
-    Serial.print("get EEProm (0x100): ");
-    Serial.println(lora.sysGetUserEEprom(0x1A), HEX);
-    Serial.print("get EEProm (0x300): ");
-    Serial.println(lora.sysGetUserEEprom(0x30), HEX);
-
-
-
-
+    Serial.print("get EEProm (0x300) : ");
+    Serial.println(lora.sysGetUserEEprom(0x300), HEX);
+    Serial.print("get EEProm (0x310): ");
+    Serial.println(lora.sysGetUserEEprom(0x310), HEX);
+    Serial.print("get EEProm (0x3FF): ");
+    Serial.println(lora.sysGetUserEEprom(0x3FF), HEX);
 
     // Read Radio modulation Mode
 
+    Serial.print("\nCurrent Radio Mode     : ");   
+    radio = lora.radioGetMode();
+    if (radio == LoRa) {
+        Serial.println("LoRa");
+    } else if (radio == FSK) {
+        Serial.println("FSK");
+    } 
 
-    // Change EEProm
-    Serial.println("\n change data on EEProm address.");
-    Serial.println("ATTENTION this will change your EEProm, do U want to continue [Y/N] ?");
-    int answer='a';
-
-    do {
-        delay(100);
-
-        if (Serial.available()) {
-            answer = Serial.read();
-        }
-    } while ((answer != 'Y') && (answer != 'N')&& 
-             (answer != 'y') && (answer != 'n'));
-
-    if (('Y' == answer) || ('y' == answer)) {
-        Serial.println(lora.sysSetUserEEprom(0, 0x01));
-        Serial.println(lora.sysSetUserEEprom(0x1A, 00));
-        Serial.println(lora.sysSetUserEEprom(0x30, 0x7E));
-        Serial.print("get EEProm (0x00) : ");
-        Serial.println(lora.sysGetUserEEprom(0), HEX);
-        Serial.print("get EEProm (0x100): ");
-        Serial.println(lora.sysGetUserEEprom(0x1A), HEX);
-        Serial.print("get EEProm (0x300): ");
-        Serial.println(lora.sysGetUserEEprom(0x30), HEX);
-    }
-
-    // Change EEProm
-    Serial.println("\n change radio mode in (L)ora or (F)sk, pres (Q) to quit") ;
-    Serial.println(" do U want to continue [L/F/Q] ?");
+    Serial.println("\n You can triggers between (L)ora and (F)sk radio modes, press (Q) to quit");
     answer='a';
 
     do {
@@ -144,29 +123,20 @@ void loop() {
              (answer != 'Q') && (answer != 'q'));
 
     if (('L' == answer) || ('l' == answer)) {
-        ok = lora.radioSetMode(LoRa);
+        lora.radioSetMode(LoRa);
     } else if (('F' == answer) || ('f' == answer)) {
-        ok = lora.radioSetMode(FSK);
+        lora.radioSetMode(FSK);
     } else {
         Serial.print("Exiting ...\n");
-        //endless loop
-        while(1) ;
     }
-    delay(100);
-
-    // Read Radio modulation Mode
-    if (ok != RN_OK) {
-        Serial.print("\nWRONG CONFIGURATION.\nRadio remain in mode: ");
-    } else {
-        Serial.print("\nRadio Mode     : ");
-    }    
+    Serial.print("\New Radio Mode     : ");   
     radio = lora.radioGetMode();
     if (radio == LoRa) {
         Serial.println("LoRa");
     } else if (radio == FSK) {
         Serial.println("FSK");
-    }
-
+    } 
+    
     //endless loop
     while(1){
         ;

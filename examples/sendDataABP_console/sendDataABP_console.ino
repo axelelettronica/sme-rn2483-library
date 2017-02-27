@@ -50,7 +50,7 @@ void setup() {
     while (!Serial) {
         ;
     }
-
+    delay(1000);  
     Serial.print("FW Version :");
     Serial.println(lora.sysGetVersion());
 
@@ -60,7 +60,7 @@ void setup() {
     if (storeConfig) {
          // Write HwEUI
         Serial.println("Writing DEV EUI ...");
-        lora.macSetDevEUICmd("0004A30B001A2A9E");
+        lora.macSetDevEUICmd("000FFF0B001A2A9E");
 
         if (err != RN_OK) {
             Serial.println("\nFailed writing Dev EUI");
@@ -72,13 +72,13 @@ void setup() {
             Serial.println("\nFailed writing APP EUI");
         }
         Serial.println("Writing Network Session Key ...");
-        err = lora.macSetNtwSessKeyCmd("2b7e151628aed2a6abf7158809cf4f3c");
+        err = lora.macSetNtwSessKeyCmd("AFBECD56473829100192837465FAEBDC");
         if (err != RN_OK) {
             Serial.println("\nFailed writing Network Session Key");
         }
         
         Serial.println("Writing Application Session Key ...");
-        err = lora.macSetAppSessKeyCmd("2b7e151628aed2a6abf7158809cf4f3c");
+        err = lora.macSetAppSessKeyCmd("AFBECD56473829100192837465FAEBDC");
         if (err != RN_OK) {
             Serial.println("\nFailed writing APP Session Key");
         }
@@ -90,7 +90,7 @@ void setup() {
         }
         
         Serial.println("Writing Device Address ...");
-        err = lora.macSetDevAddrCmd("001a2a9e");
+        err = lora.macSetDevAddrCmd("a3aa2a9e");
         if (err != RN_OK) {
             Serial.println("\nFailed writing Dev Address");
         }

@@ -43,7 +43,7 @@ static long loop_cnt = LOOP_PERIOD - 300;
 
 void setup() {
     errE err;
-    loraDbg = true;         // Set to 'true' to enable RN2483 TX/RX traces
+    loraDbg = false;         // Set to 'true' to enable RN2483 TX/RX traces
     bool storeConfig = true; // Set to 'false' if persistend config already in place    
     
     ledYellowOneLight(LOW); // turn the LED off
@@ -57,7 +57,7 @@ void setup() {
         ;
     }
 
-
+    delay(1000);
     Serial.print("FW Version :");
     Serial.println(lora.sysGetVersion());
 
@@ -144,7 +144,7 @@ void loop() {
 
     if (!(loop_cnt % LOOP_PERIOD)) { //5 minutes
        state = lora.macGetStatus();
-       Serial.println(state, HEX);
+       //Serial.println(state, HEX);
        
        // Check If network is still joined
        if (MAC_JOINED(state)) {

@@ -30,7 +30,7 @@ Provided by <development@axelelettronica.it>.
 
 ## Releases  
 ---  
-#### v1.2.0 Third Release  
+#### v1.3.0 Third Release  
 * **Maintenance Release:**  
     Added more configuration APIs.
     Cleaned library structure

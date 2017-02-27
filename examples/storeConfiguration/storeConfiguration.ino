@@ -41,19 +41,6 @@
  *  1) device EUI, 
  *  2) application EUI 
  *  3) and application key 
- *  the OTAA procedure can start.
- *  
- *  - sys get hweui 0004A30B001B2 bla
- *  
- *  - mac set deveui 0004A30B001B2 bla
- *  - mac set appkey 01020304050607080102030 blablabla //same as in ttncl
- *  - mac set appeui 70B3D57ED0000bla //same as ttncl
- *  - mac set adr off
- *  - mac set rx2 3 869525bla
- *  - mac save
- *  - mac join otaa
-ok
-**mac tx uncnf 1 7B39387D**
  */
  
 #include <Arduino.h>
@@ -63,12 +50,12 @@ char buffer[100];
 
 bool otaConfig = true;
 
-const char *APP_EUI  = "0000000000000001";
-const char *APP_KEY  = "01020304050607080102030";
+const char *APP_EUI   = "0000000000000001";
+const char *APP_KEY   = "01020304050607080102030";
 
-const char *DEV_ADDR = "001a2a9e";
-const char *NTW_S_KEY = "2b7e151628aed2a6abf7158809cf4f3c";
-const char *APP_S_KEY = "2b7e151628aed2a6abf7158809cf4f3c";
+const char *DEV_ADDR  = "001a2a9e";
+const char *NTW_S_KEY = "01020304050607080102030sawdwscef";
+const char *APP_S_KEY = "01020304050607080102030sawdwscef";
 
 void setup() {
 
@@ -89,7 +76,7 @@ void loop() {
     const char *s;
     char answer;
     
-    Serial.println("All Persistend Data on RN2483 will be cleaned");
+    Serial.println("Current RN2483 persistent configuration will be replaced");
     Serial.println("do you want to proceed [Y/N] ?");
     do {
         delay(100);
@@ -107,13 +94,13 @@ void loop() {
     lora.sysFactoryReset();
     
     // Setting Dev EUI
-    Serial.print("HW EUI          : ");
+    Serial.print("\nHW EUI          : ");
     Serial.println(lora.sysGetHwEUI());
         
 
     Serial.print("MAC DEV-EUI     : ");
     Serial.println(lora.sendRawCmdAndAnswer("mac get deveui"));
-    Serial.print("Using Hw Eui as Dev eui: ...");    
+    Serial.println("Using Hw Eui as Dev eui: ...");    
     lora.macSetDevEUICmd(lora.sysGetHwEUI());
     s = lora.sendRawCmdAndAnswer("mac get deveui");
     Serial.print("NEW MAC DEV-EUI : ");
@@ -152,12 +139,24 @@ void loop() {
     Serial.println(s);
     
     // Storing char the EEprom
-    Serial.print("Storing 0x01 to EEProm (0x00) : ");
-    lora.sysSetUserEEprom(0, 0x01);
-    Serial.println(lora.sysGetUserEEprom(0), HEX);
+    Serial.println("\nYou can store User Information in the RN2483 internal EEPROM:\n");
+    Serial.println("Writing 0x01 into address 0x300");    
+    lora.sysSetUserEEprom(0x300, 0x01);
+    Serial.println("Writing 0x00 into address 0x31A"); 
+    lora.sysSetUserEEprom(0x31A, 00);
+    Serial.println("Writing 0x7E into address 0x3FF"); 
+    lora.sysSetUserEEprom(0x3FF, 0x7E);
+    Serial.print("Reading EEProm Address 0x300   : ");
+    Serial.println(lora.sysGetUserEEprom(0x300), HEX);
+    Serial.print("Reading EEProm Address 0x31A   : ");
+    Serial.println(lora.sysGetUserEEprom(0x31A), HEX);
+    Serial.print("Reading EEProm Address 0x3FF   : ");
+    Serial.println(lora.sysGetUserEEprom(0x3FF), HEX);
+
+
 
     lora.macSave();
-    Serial.print("New configuration Stored!!!");
+    Serial.println("\nNew configuration Stored!!!");
         
     //endless loop
     while(1){
