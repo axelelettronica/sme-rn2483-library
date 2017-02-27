@@ -625,16 +625,19 @@ char RN2483::sysGetUserEEprom(char address){
 
 bool RN2483::sysSetUserEEprom(char address, char data){
     unsigned char addPos = strlen(SYS_SET_NVM);
-    char bufferT[SET_NVM_LEN];
+    char bufferT[SET_NVM_LEN] = {};
 
-    strcpy(bufferT,SYS_SET_NVM);
+    strcpy(bufferT, SYS_SET_NVM);
 
     itoa(address>>4, &bufferT[addPos], 16);
     itoa(address&0x0F, &bufferT[addPos+1], 16);
     bufferT[addPos+2]=' ';
-    itoa(data>>4, &bufferT[addPos+3], 16);
-    itoa(data&0x0F, &bufferT[addPos+4], 16);
-
+    if (data == 0) {
+        bufferT[addPos+3] = '0';
+    } else {
+        itoa(data>>4, &bufferT[addPos+3], 16);
+        itoa(data&0x0F, &bufferT[addPos+4], 16);
+    }
     return sendCmd(bufferT);
 }
 
