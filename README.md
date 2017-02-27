@@ -11,11 +11,10 @@ It integrates RF, a baseband controller, command Application Programming Interfa
 making it a complete long range Solution.
 
 The RN2483 module is suitable for simple long range sensor applications with external host MCU.
-
-
+ 
 [* Microchip RN2483 Home Page *](http://www.microchip.com/wwwproducts/en/RN2483)
 
-In particular refer to the 'RN2483 LoRa® Technology Module Command Reference User’s Guide'
+
 
 It was principally designed to work with the SmartEverything Lion board, but could
 be easily adapted and used on every Arduino and Arduino Certified boards.
