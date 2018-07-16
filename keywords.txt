@@ -5,54 +5,54 @@
 #######################################
 # Library (KEYWORD3)
 #######################################
-lora	     KEYWORD3
+lora	KEYWORD3
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-errE                 KEYWORD1
-txModeE              KEYWORD1
+errE	KEYWORD1
+txModeE	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-begin	             KEYWORD2
-available            KEYWORD2
-read                 KEYWORD2
-sendRawCmd           KEYWORD2
-sendRawCmdAndAnswer  KEYWORD2
-getLastAnswer        KEYWORD2
-sysGetVersion        KEYWORD2
-sysFactoryReset      KEYWORD2
-sysReset             KEYWORD2
-sysGetUserEEprom     KEYWORD2
-sysSetUserEEprom     KEYWORD2
-sysGetVdd            KEYWORD2
-sysGetHwEUI          KEYWORD2
-sysSleepCmd          KEYWORD2
-getMacAppEUI         KEYWORD2
-macResetCmd          KEYWORD2
-macTxCmd             KEYWORD2
-macJoinCmd           KEYWORD2
-macSetDevEUICmd      KEYWORD2
-macSetAppEUICmd      KEYWORD2
-macSetAppKeyCmd      KEYWORD2
-macSave              KEYWORD2
-macPause             KEYWORD2
-macResume            KEYWORD2
-macSetDevAddrCmd     KEYWORD2   
-macSetNtwSessKeyCmd  KEYWORD2
-macSetAppSessKeyCmd  KEYWORD2
-macSetDataRate       KEYWORD2
-macSetAdrOn          KEYWORD2
-macSetAdrOff         KEYWORD2
-macSetArOn           KEYWORD2
-macSetArOff          KEYWORD2
-getMacStatus         KEYWORD2
-getMacStatusStr      KEYWORD2
-radioSetMode         KEYWORD2
-radioGetMode         KEYWORD2
-radioSetSync         KEYWORD2
-radioSetPwr          KEYWORD2
-radioGetPwr          KEYWORD2
+begin	KEYWORD2
+available	KEYWORD2
+read	KEYWORD2
+sendRawCmd	KEYWORD2
+sendRawCmdAndAnswer	KEYWORD2
+getLastAnswer	KEYWORD2
+sysGetVersion	KEYWORD2
+sysFactoryReset	KEYWORD2
+sysReset	KEYWORD2
+sysGetUserEEprom	KEYWORD2
+sysSetUserEEprom	KEYWORD2
+sysGetVdd	KEYWORD2
+sysGetHwEUI	KEYWORD2
+sysSleepCmd	KEYWORD2
+getMacAppEUI	KEYWORD2
+macResetCmd	KEYWORD2
+macTxCmd	KEYWORD2
+macJoinCmd	KEYWORD2
+macSetDevEUICmd	KEYWORD2
+macSetAppEUICmd	KEYWORD2
+macSetAppKeyCmd	KEYWORD2
+macSave	KEYWORD2
+macPause	KEYWORD2
+macResume	KEYWORD2
+macSetDevAddrCmd	KEYWORD2
+macSetNtwSessKeyCmd	KEYWORD2
+macSetAppSessKeyCmd	KEYWORD2
+macSetDataRate	KEYWORD2
+macSetAdrOn	KEYWORD2
+macSetAdrOff	KEYWORD2
+macSetArOn	KEYWORD2
+macSetArOff	KEYWORD2
+getMacStatus	KEYWORD2
+getMacStatusStr	KEYWORD2
+radioSetMode	KEYWORD2
+radioGetMode	KEYWORD2
+radioSetSync	KEYWORD2
+radioSetPwr	KEYWORD2
+radioGetPwr	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
